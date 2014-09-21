@@ -1,0 +1,23 @@
+import org.apache.avro.generic.GenericRecord;
+
+public class SmsReceivedBolt extends EventProcessingBolt
+{
+	private static final long serialVersionUID = -4695049338179572315L;
+	
+	public SmsReceivedBolt()
+	{
+		schemaName = "sms_received";
+	}
+	
+	@Override
+	protected String getSchemaName()
+	{
+		return schemaName;
+	}
+
+	@Override
+	protected void processEvent(GenericRecord record)
+	{
+		jedis.hset(schemaName, record.get("id").toString(), record.toString());
+	}
+}

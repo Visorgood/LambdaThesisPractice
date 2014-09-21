@@ -26,10 +26,10 @@ public class TestTopology
 		spoutConfig.startOffsetTime = -2;
 		spoutConfig.forceFromStart = true;
 		
-		KafkaSpout kafkaSpout = new TopicSpecKafkaSpout(spoutConfig);
+		KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 		
 		builder.setSpout("kafka-spout", kafkaSpout, 1);
-		builder.setBolt("aggregation", new EventProcessingBolt(), 1).shuffleGrouping("kafka-spout");
+		builder.setBolt("aggregation", new SmsReceivedBolt(), 1).shuffleGrouping("kafka-spout");
 		
 		Config conf = new Config();
 		conf.setDebug(true);

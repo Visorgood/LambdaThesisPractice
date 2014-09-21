@@ -1,0 +1,43 @@
+import org.apache.avro.specific.SpecificRecord;
+//import org.apache.log4j.BasicConfigurator;
+import org.apache.spark.SparkContext;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.rdd.RDD;
+import org.menthal.model.serialization.*;
+
+import scala.reflect.ClassTag;
+
+public class ParquetFileProducer {
+
+	public static void main(String[] args)
+	{
+		// load parquet file /home/user/screen_on/part-r-00000.parquet 
+		// parse it using Kornad's library
+		// feed events to kafka
+		// create topology to process data in storm
+		// process data in storm and make some aggregation
+		
+		//BasicConfigurator.configure();
+		
+		SparkContext sc = new SparkContext("local", "Parquet File Producer");
+		ClassTag<SpecificRecord> ct = scala.reflect.ClassTag$.MODULE$.apply(SpecificRecord.class);
+		ParquetIO$ p = ParquetIO$.MODULE$;
+		RDD<SpecificRecord> rdd = p.read("/home/user/screen_on/part-r-00000.parquet", sc, p.read$default$3(), ct);
+ 
+		System.out.println(rdd.count());
+		
+        //Properties props = new Properties();
+		//props.put("metadata.broker.list", "localhost:9092");
+		//props.put("serializer.class", "kafka.serializer.StringEncoder");
+		//props.put("request.required.acks", "1");
+		 
+		//ProducerConfig config = new ProducerConfig(props);
+		//Producer<String, String> producer = new Producer<String, String>(config);
+		
+		//KeyedMessage<String, String> data = new KeyedMessage<String, String>("page_visits", "some ip", "some msg");
+		//producer.send(data);
+		
+		//producer.close();
+	}
+
+}

@@ -1,0 +1,20 @@
+import org.apache.avro.specific.SpecificRecord;
+import org.apache.spark.SparkContext;
+import org.apache.spark.rdd.RDD;
+import org.menthal.model.serialization.*;
+
+import scala.reflect.ClassTag;
+
+public class ParquetFileProducer {
+
+	public static void main(String[] args)
+	{
+		SparkContext sc = new SparkContext("local", "Parquet File Producer");
+		ClassTag<SpecificRecord> ct = scala.reflect.ClassTag$.MODULE$.apply(SpecificRecord.class);
+		ParquetIO$ p = ParquetIO$.MODULE$;
+		RDD<SpecificRecord> rdd = p.read("/home/user/screen_on/part-r-00000.parquet", sc, p.read$default$3(), ct);
+		SpecificRecord record = rdd.first();
+		System.out.println(record);
+	}
+
+}
