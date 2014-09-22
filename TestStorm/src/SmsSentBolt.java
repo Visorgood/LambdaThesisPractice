@@ -12,8 +12,7 @@ public class SmsSentBolt extends EventProcessingBolt
 	@Override
 	protected void processEvent(GenericRecord record)
 	{
-		// some particular logic must be here!
-		System.out.println(schemaName + ": " + record.toString());
-		//jedis.hset(schemaName, record.get("id").toString(), record.toString());
+		System.out.println(schemaName + "-Bolt: " + record.toString());
+		jedis.hset(schemaName, record.get("id").toString(), record.toString());
 	}
 }

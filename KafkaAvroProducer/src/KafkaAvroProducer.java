@@ -17,6 +17,7 @@ import java.util.Random;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.specific.SpecificDatumReader;
@@ -27,6 +28,8 @@ import kafka.producer.ProducerConfig;
 
 public class KafkaAvroProducer
 {
+	static String[] eventNames = new String[] { "sms_received", "sms_sent", "app_install" };
+	
 	public static void main(String[] args) throws IOException
 	{	
 		Properties props = new Properties();
@@ -36,15 +39,14 @@ public class KafkaAvroProducer
 		
 		ProducerConfig config = new ProducerConfig(props);
 		Producer<String, String> producer = new Producer<String, String>(config);
-		sendRandomEvents(producer);
-		//sendAvroEvents(producer);
+		//sendRandomEvents(producer);
+		sendAvroEvents(producer);
 		producer.close();
 	}
 	
 	static void sendRandomEvents(Producer<String, String> producer) throws IOException
 	{
 		Random r = new Random();
-		String[] eventNames = new String[] { "sms_received", "sms_sent" };
 		for (String eventName : eventNames)
 		{
 			Schema schema = new Schema.Parser().parse(new File(eventName + ".avsc"));
@@ -52,11 +54,11 @@ public class KafkaAvroProducer
 			for (long i = 0; i < 10; ++i)
 			{
 				record = new GenericData.Record(schema);
-				record.put("id", i);
-				record.put("userId", r.nextLong());
+				record.put("id", r.nextLong() % 100000);
+				record.put("userId", r.nextLong() % 100000);
 				record.put("time", new Date().getTime());
-				record.put("contactHash", "");
-				record.put("msgLength", 0);
+				//record.put("contactHash", "");
+				//record.put("msgLength", 0);
 				producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
 			}
 		}
@@ -64,17 +66,29 @@ public class KafkaAvroProducer
 	
 	static void sendAvroEvents(Producer<String, String> producer) throws IOException
 	{
-		//File file = new File("/home/user/some_avro_file");
-	    //DatumReader<String> userDatumReader = new SpecificDatumReader<String>(String.class);
-	    //DataFileReader<String> dataFileReader = new DataFileReader<String>(file, userDatumReader);
-	    
-	    //SmsReceived smsReceived = null;
-	    //while (dataFileReader.hasNext())
-	    //{
-	    	//smsReceived = dataFileReader.next(smsReceived);
-			//producer.send(new KeyedMessage<String, String>("test", message));
-	    //}
-	    
-	    //dataFileReader.close();
+		for (String eventName : eventNames)
+		{
+			Schema schema = new Schema.Parser().parse(new File(eventName + ".avsc"));
+			File dir = new File("/home/user/LambdaThesisPractice/parquet_avro_binary/" + eventName);
+			
+			for (File file : dir.listFiles())
+			{
+				if (!file.getName().endsWith(".avro"))
+					continue;
+				
+			    DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
+			    DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(file, datumReader);
+			    
+			    GenericRecord record = null;
+			    while (dataFileReader.hasNext())
+			    {
+			    	record = dataFileReader.next(record);
+			    	System.out.println(record.toString());
+					producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
+			    }
+			    
+			    dataFileReader.close();
+			}
+		}
 	}
 }

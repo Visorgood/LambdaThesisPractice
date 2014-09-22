@@ -1,12 +1,12 @@
 import org.apache.avro.generic.GenericRecord;
 
-public class SmsReceivedBolt extends EventProcessingBolt
+public class AppInstallBolt extends EventProcessingBolt
 {
-	private static final long serialVersionUID = -4695049338179572315L;
-	
-	public SmsReceivedBolt()
+	private static final long serialVersionUID = -5069348287754598035L;
+
+	public AppInstallBolt()
 	{
-		schemaName = "sms_received";
+		schemaName = "app_install";
 	}
 
 	@Override

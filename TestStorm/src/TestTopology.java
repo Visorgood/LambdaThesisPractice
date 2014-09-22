@@ -13,7 +13,7 @@ public class TestTopology
 	{
 		TopologyBuilder builder = new TopologyBuilder();
 		
-		String[] eventNames = new String[] { "sms_received", "sms_sent" };
+		String[] eventNames = new String[] { "sms_received", "sms_sent", "app_install" };
 		
 		for (String eventName : eventNames)
 		{
@@ -44,7 +44,7 @@ public class TestTopology
 		{
 			LocalCluster cluster = new LocalCluster();
 			cluster.submitTopology("test-topology", conf, builder.createTopology());
-			Utils.sleep(30000);
+			Utils.sleep(20000);
 			cluster.killTopology("test-topology");
 			cluster.shutdown();
     	}

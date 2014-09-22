@@ -22,7 +22,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt
 {
 	private static final long serialVersionUID = -8386633614335300892L;
 	protected String schemaName;
-	protected static Jedis jedis;
+	protected Jedis jedis;
 	
 	protected abstract void processEvent(GenericRecord record);
 	
@@ -32,6 +32,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt
 		{
 			case "sms_received": return new SmsReceivedBolt();
 			case "sms_sent": return new SmsSentBolt();
+			case "app_install": return new AppInstallBolt();
 		}
 		return null;
 	}
