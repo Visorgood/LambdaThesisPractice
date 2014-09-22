@@ -1,5 +1,5 @@
 {
-    "name":"SmsReceived",
+    "name":"SmsSent",
     "type":"record",
   "namespace":"org.menthal.model.events",
     "fields":[
