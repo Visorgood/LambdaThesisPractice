@@ -26,6 +26,16 @@ public abstract class EventProcessingBolt extends BaseRichBolt
 	
 	protected abstract void processEvent(GenericRecord record);
 	
+	public static EventProcessingBolt getEventProcessingBoltByEventName(String eventName)
+	{
+		switch (eventName)
+		{
+			case "sms_received": return new SmsReceivedBolt();
+			case "sms_sent": return new SmsSentBolt();
+		}
+		return null;
+	}
+	
 	@Override
 	public void execute(Tuple tuple)
 	{

@@ -12,24 +12,25 @@ public class TestTopology
 	public static void main(String[] args) throws Exception
 	{
 		TopologyBuilder builder = new TopologyBuilder();
-		   
-		ZkHosts zkHosts = new ZkHosts("localhost:5181","/brokers");
-		String topic = "test";
-		// Root path in Zookeeper for the spout to store consumer offsets
-		String zkRoot = "/kafka-spout";
-		// ID for storing consumer offsets in Zookeeper
-		// The spout appends this id to zkRoot when composing its ZooKeeper path.  You don't need a leading `/`.
-		String zkSpoutId = "kafka-storm-starter";
 		
-		SpoutConfig spoutConfig = new SpoutConfig(zkHosts, topic, zkRoot, zkSpoutId);
-		spoutConfig.zkPort = 5181;
-		spoutConfig.startOffsetTime = -2;
-		spoutConfig.forceFromStart = true;
+		String[] eventNames = new String[] { "sms_received", "sms_sent" };
 		
-		KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
-		
-		builder.setSpout("kafka-spout", kafkaSpout, 1);
-		builder.setBolt("aggregation", new SmsReceivedBolt(), 1).shuffleGrouping("kafka-spout");
+		for (String eventName : eventNames)
+		{
+			ZkHosts zkHosts = new ZkHosts("localhost:5181","/brokers");
+			String topic = eventName;
+			// Root path in Zookeeper for the spout to store consumer offsets
+			String zkRoot = "/kafka-spout";
+			// ID for storing consumer offsets in Zookeeper
+			// The spout appends this id to zkRoot when composing its ZooKeeper path.  You don't need a leading `/`.
+			String zkSpoutId = eventName;// + "-kafka-storm-starter";
+			SpoutConfig spoutConfig = new SpoutConfig(zkHosts, topic, zkRoot, zkSpoutId);
+			spoutConfig.zkPort = 5181;
+			spoutConfig.startOffsetTime = -2;
+			spoutConfig.forceFromStart = true;
+			builder.setSpout(eventName + "-KafkaSpout", new KafkaSpout(spoutConfig), 1);
+			builder.setBolt(eventName + "-Bolt", EventProcessingBolt.getEventProcessingBoltByEventName(eventName), 1).shuffleGrouping(eventName + "-KafkaSpout");
+		}
 		
 		Config conf = new Config();
 		conf.setDebug(true);
@@ -42,9 +43,9 @@ public class TestTopology
 		else
 		{
 			LocalCluster cluster = new LocalCluster();
-			cluster.submitTopology("test", conf, builder.createTopology());
+			cluster.submitTopology("test-topology", conf, builder.createTopology());
 			Utils.sleep(30000);
-			cluster.killTopology("test");
+			cluster.killTopology("test-topology");
 			cluster.shutdown();
     	}
 	}

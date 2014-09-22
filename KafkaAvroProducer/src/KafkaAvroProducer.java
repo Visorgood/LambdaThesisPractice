@@ -44,17 +44,21 @@ public class KafkaAvroProducer
 	static void sendRandomEvents(Producer<String, String> producer) throws IOException
 	{
 		Random r = new Random();
-		Schema schema = new Schema.Parser().parse(new File("/home/user/sms_received.avsc"));
-		GenericRecord record;
-		for (long i = 0; i < 10; ++i)
+		String[] eventNames = new String[] { "sms_received", "sms_sent" };
+		for (String eventName : eventNames)
 		{
-			record = new GenericData.Record(schema);
-			record.put("id", i);
-			record.put("userId", r.nextLong());
-			record.put("time", new Date().getTime());
-			record.put("contactHash", "");
-			record.put("msgLength", 0);
-			producer.send(new KeyedMessage<String, String>("test", record.toString()));
+			Schema schema = new Schema.Parser().parse(new File(eventName + ".avsc"));
+			GenericRecord record;
+			for (long i = 0; i < 10; ++i)
+			{
+				record = new GenericData.Record(schema);
+				record.put("id", i);
+				record.put("userId", r.nextLong());
+				record.put("time", new Date().getTime());
+				record.put("contactHash", "");
+				record.put("msgLength", 0);
+				producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
+			}
 		}
 	}
 	
