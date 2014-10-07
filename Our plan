@@ -1,0 +1,20 @@
+1) Implement aggregations:
+- ...
+- ...
+
+2) Create test data generator:
+- get a huge dump of user data (parquet or Avro format?)
+- convert from parquet to Avro (if needed)
+- send to Kafka
+
+3) Check how we can use their Spark code
+
+4) Test that both Storm and Spark work well locally
+
+5) Move everything to the test cluster (3 machines)
+
+6) Move everything to real cluster (30 machines) and test on real data
+
+7) Think about anomaly detection algorithms (machine learning)
+
+8) Think about merging aggregation results from Speed and Batch layer
