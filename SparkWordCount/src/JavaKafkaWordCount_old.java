@@ -49,10 +49,11 @@ import org.apache.spark.streaming.kafka.KafkaUtils;
  *    zoo03 my-consumer-group topic1,topic2 1`
  */
 
-public final class JavaKafkaWordCount
-{
+public final class JavaKafkaWordCount_old {
+  private static final Pattern SPACE = Pattern.compile(" ");
 
-  private JavaKafkaWordCount() { }
+  private JavaKafkaWordCount_old() {
+  }
 
   public static void main(String[] args) 
   {
@@ -60,24 +61,47 @@ public final class JavaKafkaWordCount
     SparkConf sparkConf = new SparkConf().setAppName("JavaKafkaWordCount");
     sparkConf.setMaster("local[2]");
     // Create the context with a 1 second batch size
-    JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, new Duration(1000));
+    JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, new Duration(2000));
     
     int numThreads = 1;
     String zkQuorum = "localhost:5181";
     String group = "test-consumer-group";
-    
-    String[] eventNames = new String[] { "sms_received"};//{ "sms_received", "sms_sent", "app_install" };
-	
-	for (String eventName : eventNames)
-	{
-		Map<String, Integer> topicMap = new HashMap<String, Integer>();
-	    topicMap.put(eventName, numThreads);
-	    
-		EventProcessingStream stream = EventProcessingStream.getEventProcessingStreamByEventName(eventName);
-		stream.run(jssc, zkQuorum, group, topicMap);
-	}
-	
-	jssc.start();
-	jssc.awaitTermination();
+    Map<String, Integer> topicMap = new HashMap<String, Integer>();
+    topicMap.put("test", numThreads);
+
+    JavaPairReceiverInputDStream<String, String> messages =
+            KafkaUtils.createStream(jssc, zkQuorum, group, topicMap);
+
+    JavaDStream<String> lines = messages.map(new Function<Tuple2<String, String>, String>()
+    {
+      @Override
+      public String call(Tuple2<String, String> tuple2) {
+        return tuple2._2();
+      }
+    });
+
+    JavaDStream<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
+      @Override
+      public Iterable<String> call(String x) {
+        return Lists.newArrayList(SPACE.split(x));
+      }
+    });
+
+    JavaPairDStream<String, Integer> wordCounts = words.mapToPair(
+      new PairFunction<String, String, Integer>() {
+        @Override
+        public Tuple2<String, Integer> call(String s) {
+          return new Tuple2<String, Integer>(s, 1);
+        }
+      }).reduceByKey(new Function2<Integer, Integer, Integer>() {
+        @Override
+        public Integer call(Integer i1, Integer i2) {
+          return i1 + i2;
+        }
+      });
+
+    wordCounts.print();
+    jssc.start();
+    jssc.awaitTermination();
   }
 }
