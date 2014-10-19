@@ -6,6 +6,8 @@ import redis.clients.jedis.Jedis;
 
 public class Main
 {
+	private static Jedis jedis = new Jedis("localhost");
+	
 	private static long HOUR = Duration.standardHours(1).getMillis();
 	private static long DAY = Duration.standardDays(1).getMillis();
 	private static long WEEK = Duration.standardDays(7).getMillis();
@@ -18,19 +20,16 @@ public class Main
 		// Th - total duration of usage of this app during the last hour
 		// app:$app_name:users_count stores integer counter of the number of unique users of this app
 		
-		
-		Jedis jedis = new Jedis("localhost");
-
 		String app_name = "facebook";
-		String user_id = "user005";
-		long time = 23235;
-		long duration = 60;
+		String user_id = "user001";
+		long time = new DateTime().getMillis();
+		long duration = 35 * 1000;
 		
-		AppInstall(jedis, app_name, user_id, time);
-		AppSession(jedis, app_name, user_id, time, duration);
+		AppInstall(app_name, user_id, time);
+		AppSession(app_name, user_id, time, duration);
 	}
 	
-	static void AppInstall(Jedis jedis, String app_name, String user_id, long time)
+	static void AppInstall(String app_name, String user_id, long time)
 	{
 		String appUserKey = String.format("app:%s:%s", app_name, user_id);
 		if (!jedis.exists(appUserKey + ":Nsh"))
@@ -49,46 +48,144 @@ public class Main
 		}
 	}
 	
-	static void AppSession(Jedis jedis, String app_name, String user_id, long time, long duration)
+	static void AppSession(String app_name, String user_id, long time, long duration)
 	{
 		String appUserKey = String.format("app:%s:%s", app_name, user_id);
-		
+		incrNsh(appUserKey, time);
+		incrNsd(appUserKey, time);
+		incrNsw(appUserKey, time);
+		incrNsm(appUserKey, time);
+		incrTh(appUserKey, time, duration);
+		incrTd(appUserKey, time, duration);
+		incrTw(appUserKey, time, duration);
+		incrTm(appUserKey, time, duration);
+	}
+	
+	static void incrNsh(String appUserKey, long time)
+	{
 		String appUserKeyHour = appUserKey + ":Nsh";
-		long diff = time - Long.parseLong(jedis.lrange(appUserKeyHour, 0, 1).get(0));
+		long Nsh = Long.parseLong(jedis.lrange(appUserKeyHour, 0, 1).get(0));
+		long diff = time - Nsh;
 		if (diff >= HOUR)
 		{
 			long hours = diff / HOUR;
-			jedis.lset(appUserKeyHour, 0, Long.toString(time + hours * HOUR));
+			jedis.lset(appUserKeyHour, 0, Long.toString(Nsh + hours * HOUR));
+			jedis.lset(appUserKeyHour, 1, "1");
 		}
-		jedis.incr(appUserKeyHour);
-		
+		else
+			jedis.incr(appUserKeyHour);
+	}
+	
+	static void incrNsd(String appUserKey, long time)
+	{
 		String appUserKeyDay = appUserKey + ":Nsd";
-		diff = time - Long.parseLong(jedis.lrange(appUserKeyDay, 0, 1).get(0));
+		long Nsd = Long.parseLong(jedis.lrange(appUserKeyDay, 0, 1).get(0));
+		long diff = time - Nsd;
 		if (diff >= DAY)
 		{
 			long days = diff / DAY;
-			jedis.lset(appUserKeyDay, 0, Long.toString(time + days * DAY));
+			jedis.lset(appUserKeyDay, 0, Long.toString(Nsd + days * DAY));
+			jedis.lset(appUserKeyDay, 1, "1");
 		}
-		jedis.incr(appUserKeyDay);
-		
+		else
+			jedis.incr(appUserKeyDay);
+	}
+	
+	static void incrNsw(String appUserKey, long time)
+	{
 		String appUserKeyWeek = appUserKey + ":Nsw";
-		diff = time - Long.parseLong(jedis.lrange(appUserKeyWeek, 0, 1).get(0));
+		long Nsw = Long.parseLong(jedis.lrange(appUserKeyWeek, 0, 1).get(0));
+		long diff = time - Nsw;
+		if (diff >= WEEK)
+		{
+			// !!! here must be changed so that weeks start from monday
+			long weeks = diff / WEEK;
+			jedis.lset(appUserKeyWeek, 0, Long.toString(Nsw + weeks * WEEK));
+			jedis.lset(appUserKeyWeek, 1, "1");
+		}
+		else
+			jedis.incr(appUserKeyWeek);
+	}
+	
+	static void incrNsm(String appUserKey, long time)
+	{
+		String appUserKeyMonth = appUserKey + ":Nsm";
+		if (monthDiff(time, Long.parseLong(jedis.lrange(appUserKeyMonth, 0, 1).get(0))) > 0)
+		{
+			jedis.lset(appUserKeyMonth, 0, Long.toString(removeTillMonth(time)));
+			jedis.lset(appUserKeyMonth, 1, "1");
+		}
+		else
+			jedis.incr(appUserKeyMonth);
+	}
+	
+	static void incrTh(String appUserKey, long time, long duration)
+	{
+		String appUserKeyHour = appUserKey + ":Th";
+		long Th = Long.parseLong(jedis.lrange(appUserKeyHour, 0, 1).get(0));
+		long endTime = time + duration;
+		long diff = endTime - Th;
+		if (diff >= HOUR)
+		{
+			long hours = diff / HOUR;
+			Th += hours * HOUR;
+			jedis.lset(appUserKeyHour, 0, Long.toString(Th));
+			jedis.lset(appUserKeyHour, 1, "0");
+		}
+		if (time < Th)
+			duration -= Th - time;
+		jedis.incrBy(appUserKeyHour, duration);
+	}
+	
+	static void incrTd(String appUserKey, long time, long duration)
+	{
+		String appUserKeyDay = appUserKey + ":Td";
+		long Td = Long.parseLong(jedis.lrange(appUserKeyDay, 0, 1).get(0));
+		long endTime = time + duration;
+		long diff = endTime - Td;
+		if (diff >= DAY)
+		{
+			long days = diff / DAY;
+			Td += days * DAY;
+			jedis.lset(appUserKeyDay, 0, Long.toString(Td));
+			jedis.lset(appUserKeyDay, 1, "0");
+		}
+		if (time < Td)
+			duration -= Td - time;
+		jedis.incrBy(appUserKeyDay, duration);
+	}
+	
+	static void incrTw(String appUserKey, long time, long duration)
+	{
+		String appUserKeyWeek = appUserKey + ":Tw";
+		long Tw = Long.parseLong(jedis.lrange(appUserKeyWeek, 0, 1).get(0));
+		long endTime = time + duration;
+		long diff = endTime - Tw;
 		if (diff >= WEEK)
 		{
 			long weeks = diff / WEEK;
-			jedis.lset(appUserKeyWeek, 0, Long.toString(time + weeks * WEEK));
+			Tw += weeks * WEEK;
+			jedis.lset(appUserKeyWeek, 0, Long.toString(Tw));
+			jedis.lset(appUserKeyWeek, 1, "0");
 		}
-		jedis.incr(appUserKeyWeek);
-		
-		String appUserKeyMonth = appUserKey + ":Nsm";
-		if (monthDiff(time, Long.parseLong(jedis.lrange(appUserKeyMonth, 0, 1).get(0))) > 0)
-			jedis.lset(appUserKeyMonth, 0, Long.toString(removeTillMonth(time)));
-		jedis.incr(appUserKeyMonth);
-		
-		jedis.incrBy(appUserKey + ":Th", duration);
-		jedis.incrBy(appUserKey + ":Td", duration);
-		jedis.incrBy(appUserKey + ":Tw", duration);
-		jedis.incrBy(appUserKey + ":Tm", duration);
+		if (time < Tw)
+			duration -= Tw - time;
+		jedis.incrBy(appUserKeyWeek, duration);
+	}
+	
+	static void incrTm(String appUserKey, long time, long duration)
+	{
+		String appUserKeyMonth = appUserKey + ":Tm";
+		long Tm = Long.parseLong(jedis.lrange(appUserKeyMonth, 0, 1).get(0));
+		long endTime = time + duration;
+		if (monthDiff(endTime, Tm) > 0)
+		{
+			jedis.lset(appUserKeyMonth, 0, Long.toString(removeTillMonth(endTime)));
+			jedis.lset(appUserKeyMonth, 1, "0");
+		}
+		if (time < Tm)
+			duration -= Tm - time;
+		jedis.incrBy(appUserKeyMonth, duration);
 	}
 	
 	static long monthDiff(long t1, long t2)
