@@ -12,8 +12,7 @@ import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
-
-public class Main
+public class EventGenerator
 {
 	private static int NUMBER_OF_EVENTS = 1000;
 	private static int MIN_INTERVAL = 100;
@@ -48,7 +47,7 @@ public class Main
 			int k = random.nextInt(eventNames.length);
 			String eventName = eventNames[k];
 			GenericRecord record = generateEvent(eventName);
-			//System.out.println(record);
+			System.out.println(record);
 			producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
 			Thread.sleep(MIN_INTERVAL + random.nextInt(MAX_ADDITIONAL_INTERVAL));
 		}
