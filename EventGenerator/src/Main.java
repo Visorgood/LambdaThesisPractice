@@ -15,11 +15,14 @@ import kafka.producer.ProducerConfig;
 
 public class Main
 {
-	private static String[] eventNames = new String[] { "app_install", "app_session" , "screen_off", "screen_unlock", "sms_received", "sms_sent", "call_outgoing", "call_received", "call_missed"};
 	private static Random random = new Random();
-	private static int N = 10000; // the number of event to generate
-	private static int minSleepDuration = 100;
-	private static int addedSleepDuration = 200;
+	private static int NUMBER_OF_EVENTS = 10000;
+	private static int MIN_INTERVAL = 100;
+	private static int MAX_ADDITIONAL_INTERVAL = 200;
+	private static String[] eventNames = new String[] {
+		"app_install", "app_session" , "screen_off",
+		"screen_unlock", "sms_received", "sms_sent",
+		"call_outgoing", "call_received", "call_missed"};
 	
 	public static void main(String[] args) throws IOException, InterruptedException
 	{
@@ -31,13 +34,13 @@ public class Main
 		ProducerConfig config = new ProducerConfig(props);
 		Producer<String, String> producer = new Producer<String, String>(config);
 		
-		for (int i = 0; i < N; ++i)
+		for (int i = 0; i < NUMBER_OF_EVENTS; ++i)
 		{
 			int k = random.nextInt(eventNames.length);
 			String eventName = eventNames[k];
 			GenericRecord record = generateEvent(eventName);
 			producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
-			Thread.sleep(minSleepDuration + random.nextInt(addedSleepDuration));
+			Thread.sleep(MIN_INTERVAL + random.nextInt(MAX_ADDITIONAL_INTERVAL));
 		}
 		
 		producer.close();
