@@ -15,10 +15,16 @@ import kafka.producer.ProducerConfig;
 
 public class Main
 {
-	private static Random random = new Random();
-	private static int NUMBER_OF_EVENTS = 10000;
+	private static int NUMBER_OF_EVENTS = 1000;
 	private static int MIN_INTERVAL = 100;
 	private static int MAX_ADDITIONAL_INTERVAL = 200;
+	
+	private static long NUMBER_OF_USERS = 100;
+	private static int NUMBER_OF_APPS = 100;
+	private static int MAX_MSG_LENGTH = 200;
+	private static long MAX_DURATION = 15 * 60 * 1000;
+	
+	private static Random random = new Random();
 	private static String[] eventNames = new String[] {
 		"app_install", "app_session" , "screen_off",
 		"screen_unlock", "sms_received", "sms_sent",
@@ -34,11 +40,15 @@ public class Main
 		ProducerConfig config = new ProducerConfig(props);
 		Producer<String, String> producer = new Producer<String, String>(config);
 		
+		if (args.length > 0)
+			NUMBER_OF_EVENTS = Integer.parseInt(args[0]);
+		
 		for (int i = 0; i < NUMBER_OF_EVENTS; ++i)
 		{
 			int k = random.nextInt(eventNames.length);
 			String eventName = eventNames[k];
 			GenericRecord record = generateEvent(eventName);
+			//System.out.println(record);
 			producer.send(new KeyedMessage<String, String>(eventName, record.toString()));
 			Thread.sleep(MIN_INTERVAL + random.nextInt(MAX_ADDITIONAL_INTERVAL));
 		}
@@ -139,7 +149,7 @@ public class Main
 	
 	private static long generateUserId()
 	{
-		return random.nextLong() % 99999 + 1L;
+		return genLong() % NUMBER_OF_USERS + 1L;
 	}
 	
 	private static long generateTime()
@@ -149,22 +159,31 @@ public class Main
 	
 	private static long generateDuration()
 	{
-		// 0-14 minutes; 0-59 seconds; 0-999 millis
-		return (random.nextLong() % 15) * 60 * 1000 + (random.nextLong() % 60) * 1000 + random.nextLong() % 1000;
+		return genLong() % MAX_DURATION;
 	}
 	
 	private static String generateAppName()
 	{
-		return "app" + Long.toString(random.nextLong() % 99999 + 1L);
+		return "app" + Long.toString(genInt() % NUMBER_OF_APPS + 1);
 	}
 	
 	private static String generateContactHash()
 	{
-		return "contactHash" + Long.toString(random.nextLong() % 99999 + 1L);
+		return "contactHash" + Long.toString(genLong() % NUMBER_OF_USERS + 1L);
 	}
 	
 	private static int generateMsgLength()
 	{
-		return random.nextInt() % 200 + 1;
+		return genInt() % MAX_MSG_LENGTH + 1;
+	}
+	
+	private static long genLong()
+	{
+		return Math.abs(random.nextLong());
+	}
+	
+	private static int genInt()
+	{
+		return Math.abs(random.nextInt());
 	}
 }
