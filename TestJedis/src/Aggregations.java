@@ -6,7 +6,6 @@ import org.joda.time.MutableDateTime;
 
 import redis.clients.jedis.Jedis;
 
-
 public class Aggregations
 {
 	private static long HOUR = Duration.standardHours(1).getMillis();
@@ -33,7 +32,7 @@ public class Aggregations
 		
 		// app:$app_name:$user_id:total_time:* durations
 		key = String.format("app:%s:%s:%s", appName, userId, "total_time");
-		incrementDuration(key, time, duration);
+		incrementDurations(key, time, duration);
 		
 		// user:$user_id:$app_name:app_usage:* counters
 		key = String.format("user:%s:%s:%s", userId, appName, "app_usage");
@@ -41,7 +40,7 @@ public class Aggregations
 		
 		// user:$user_id:$app_name:app_starts:* durations
 		key = String.format("user:%s:%s:%s", userId, appName, "app_starts");
-		incrementDuration(key, time, duration);
+		incrementDurations(key, time, duration);
 	}
 	
 	static void ScreenUnlock(String userId, long time)
@@ -59,7 +58,7 @@ public class Aggregations
 		
 		// user:$user_id:$phone_hash:incoming_msg_length:* lengths
 		key = String.format("user:%s:%s:%s", userId, contactHash, "incoming_msg_length");
-		incrementLength(key, time, msgLength);
+		incrementLengths(key, time, msgLength);
 	}
 	
 	static void SmsSent(String userId, long time, String contactHash, int msgLength)
@@ -70,7 +69,7 @@ public class Aggregations
 		
 		// user:$user_id:$phone_hash:outgoing_msg_length:* lengths
 		key = String.format("user:%s:%s:%s", userId, contactHash, "outgoing_msg_length");
-		incrementLength(key, time, msgLength);
+		incrementLengths(key, time, msgLength);
 	}
 	
 	static void CallOutgoing(String userId, long time, String contactHash, long startTimestamp, long durationInMillis)
@@ -81,7 +80,7 @@ public class Aggregations
 		
 		// user:$user_id:$phone_hash:outgoing_call_duration:* durations
 		key = String.format("user:%s:%s:%s", userId, contactHash, "outgoing_call_duration");
-		incrementDuration(key, time, durationInMillis);
+		incrementDurations(key, time, durationInMillis);
 	}
 	
 	static void CallReceived(String userId, long time, String contactHash, long startTimestamp, long durationInMillis)
@@ -92,7 +91,7 @@ public class Aggregations
 		
 		// user:$user_id:$phone_hash:incoming_call_duration:* durations
 		key = String.format("user:%s:%s:%s", userId, contactHash, "incoming_call_duration");
-		incrementDuration(key, time, durationInMillis);
+		incrementDurations(key, time, durationInMillis);
 	}
 	
 	static void CallMissed(String userId, long time, String contactHash, long timestamp)
@@ -117,7 +116,7 @@ public class Aggregations
 		incrementMonthlyCounter(key, time, 1);
 	}
 	
-	static void incrementDuration(String key, long time, long duration)
+	static void incrementDurations(String key, long time, long duration)
 	{
 		if (!jedis.exists(key + ":duration_hourly"))
 		{
@@ -133,7 +132,7 @@ public class Aggregations
 	}
 
 	
-	static void incrementLength(String key, long time, int length)
+	static void incrementLengths(String key, long time, int length)
 	{
 		if (!jedis.exists(key + ":length_hourly"))
 		{
