@@ -6,7 +6,6 @@ import org.joda.time.MutableDateTime;
 
 import redis.clients.jedis.Jedis;
 
-
 public class UsersAggregations
 {
 	private static Jedis jedis = new Jedis("localhost");
@@ -14,12 +13,6 @@ public class UsersAggregations
 	private static long HOUR = Duration.standardHours(1).getMillis();
 	private static long DAY = Duration.standardDays(1).getMillis();
 	private static long WEEK = Duration.standardDays(7).getMillis();
-	
-	public static void main(String[] args)
-	{
-		
-
-	}
 	
 	static void AppSession(String user_id, String app_name, long duration, long current_time)
 	{
