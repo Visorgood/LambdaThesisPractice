@@ -1,6 +1,6 @@
 public class EventAggregator
 {
-	RedisProxy redisProxy;
+	private final RedisProxy redisProxy;
 	
 	public EventAggregator(String host)
 	{
@@ -9,7 +9,7 @@ public class EventAggregator
 	
 	void processAppInstall(long userId, String appName, long time)
 	{
-		redisProxy.addUserToApp(appName, Long.toString(userId));
+		redisProxy.addUserToApp(appName, "user" + Long.toString(userId));
 	}
 	
 	void processAppSession(long userId, long time, long duration, String appName)
