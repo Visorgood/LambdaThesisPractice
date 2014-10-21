@@ -13,6 +13,10 @@ public class SmsReceivedBolt extends EventProcessingBolt
 	protected void processEvent(GenericRecord record)
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
-		jedis.hset(schemaName, record.get("id").toString(), record.toString());
+		long userId = (long)record.get("user_id");
+		long time = (long)record.get("time");
+		String contactHash = (String)record.get("contactHash");
+		int msgLength = (int)record.get("msgLength");
+		eventAggregator.processSmsReceived(userId, time, contactHash, msgLength);
 	}
 }

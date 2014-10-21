@@ -13,6 +13,9 @@ public class AppInstallBolt extends EventProcessingBolt
 	protected void processEvent(GenericRecord record)
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
-		jedis.hset(schemaName, record.get("id").toString(), record.toString());
+		long userId = (long)record.get("user_id");
+		String appName = (String)record.get("app_name");
+		long time = (long)record.get("time");
+		eventAggregator.processAppInstall(userId, appName, time);
 	}
 }

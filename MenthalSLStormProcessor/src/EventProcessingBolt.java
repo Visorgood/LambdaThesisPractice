@@ -9,7 +9,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DecoderFactory;
 
-import redis.clients.jedis.Jedis;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -19,21 +18,28 @@ import backtype.storm.tuple.Tuple;
 public abstract class EventProcessingBolt extends BaseRichBolt
 {
 	private static final long serialVersionUID = -8386633614335300892L;
-	protected String schemaName;
-	protected Jedis jedis;
 	
-	protected abstract void processEvent(GenericRecord record);
+	protected String schemaName;
+	protected EventAggregator eventAggregator;
 	
 	public static EventProcessingBolt getEventProcessingBoltByEventName(String eventName)
 	{
 		switch (eventName)
 		{
+			case "app_install": return new AppInstallBolt();
+			case "app_session": return new AppSessionBolt();
+			case "screen_off": return new ScreenOffBolt();
+			case "screen_unlock": return new ScreenUnlockBolt();
 			case "sms_received": return new SmsReceivedBolt();
 			case "sms_sent": return new SmsSentBolt();
-			case "app_install": return new AppInstallBolt();
+			case "call_outgoing": return new CallOutgoingBolt();
+			case "call_received": return new CallReceivedBolt();
+			case "call_missed": return new CallMissedBolt();
 		}
 		return null;
 	}
+
+	protected abstract void processEvent(GenericRecord record);
 	
 	@Override
 	public void execute(Tuple tuple)
@@ -56,7 +62,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt
 	@Override
 	public void prepare(Map conf, TopologyContext context, OutputCollector collector)
 	{
-		jedis = new Jedis("localhost");
+		eventAggregator = new EventAggregator("localhost");
 	}
 
 	@Override

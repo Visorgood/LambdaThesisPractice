@@ -9,5 +9,8 @@
 	<classpathentry kind="lib" path="/home/user/avro-1.7.7-javadoc.jar"/>
 	<classpathentry kind="lib" path="/home/user/jackson-core-asl-1.9.13.jar"/>
 	<classpathentry kind="lib" path="/home/user/jackson-mapper-asl-1.9.13.jar"/>
+	<classpathentry kind="lib" path="/home/user/joda-time-2.5/target/joda-time-2.5.jar"/>
+	<classpathentry kind="lib" path="/home/user/joda-time-2.5/target/joda-time-2.5-javadoc.jar"/>
+	<classpathentry kind="lib" path="/home/user/joda-time-2.5/target/joda-time-2.5-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

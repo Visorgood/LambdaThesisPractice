@@ -13,6 +13,5 @@ public class ScreenOffBolt extends EventProcessingBolt
 	protected void processEvent(GenericRecord record)
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
-		jedis.hset(schemaName, record.get("id").toString(), record.toString());
 	}
 }

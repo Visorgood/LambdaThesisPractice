@@ -13,6 +13,8 @@ public class ScreenUnlockBolt extends EventProcessingBolt
 	protected void processEvent(GenericRecord record)
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
-		jedis.hset(schemaName, record.get("id").toString(), record.toString());
+		long userId = (long)record.get("user_id");
+		long time = (long)record.get("time");
+		eventAggregator.processScreenUnlock(userId, time);
 	}
 }

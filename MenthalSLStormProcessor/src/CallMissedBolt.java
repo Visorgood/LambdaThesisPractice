@@ -13,6 +13,9 @@ public class CallMissedBolt extends EventProcessingBolt
 	protected void processEvent(GenericRecord record)
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
-		jedis.hset(schemaName, record.get("id").toString(), record.toString());
+		long userId = (long)record.get("user_id");
+		long time = (long)record.get("time");
+		String contactHash = (String)record.get("contactHash");
+		eventAggregator.processCallMissed(userId, time, contactHash, time);
 	}
 }
