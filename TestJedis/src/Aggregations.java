@@ -101,7 +101,7 @@ public class Aggregations
 		incrementCounters(key, time);
 	}
 	
-	static void incrementCounters(String key, long time)
+	private static void incrementCounters(String key, long time)
 	{
 		if (!jedis.exists(key + ":count_hourly"))
 		{
@@ -116,7 +116,7 @@ public class Aggregations
 		incrementMonthlyCounter(key, time, 1);
 	}
 	
-	static void incrementDurations(String key, long time, long duration)
+	private static void incrementDurations(String key, long time, long duration)
 	{
 		if (!jedis.exists(key + ":duration_hourly"))
 		{
@@ -132,7 +132,7 @@ public class Aggregations
 	}
 
 	
-	static void incrementLengths(String key, long time, int length)
+	private static void incrementLengths(String key, long time, int length)
 	{
 		if (!jedis.exists(key + ":length_hourly"))
 		{
@@ -147,7 +147,7 @@ public class Aggregations
 		incrementMonthlyCounter(key, time, length);
 	}
 	
-	static void incrementHourlyCounter(String key, long time, long value)
+	private static void incrementHourlyCounter(String key, long time, long value)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingHourTime = Long.parseLong(counter.get(0));
@@ -163,7 +163,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(counterValue));
 	}
 	
-	static void incrementDailyCounter(String key, long time, long value)
+	private static void incrementDailyCounter(String key, long time, long value)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingDayTime = Long.parseLong(counter.get(0));
@@ -179,7 +179,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(counterValue));
 	}
 	
-	static void incrementWeeklyCounter(String key, long time, long value)
+	private static void incrementWeeklyCounter(String key, long time, long value)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingWeekTime = Long.parseLong(counter.get(0));
@@ -196,7 +196,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(counterValue));
 	}
 	
-	static void incrementMonthlyCounter(String key, long time, long value)
+	private static void incrementMonthlyCounter(String key, long time, long value)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingMonthTime = Long.parseLong(counter.get(0));
@@ -210,7 +210,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(counterValue));
 	}
 	
-	static void incrementHourlyDuration(String key, long time, long duration)
+	private static void incrementHourlyDuration(String key, long time, long duration)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingHourTime = Long.parseLong(counter.get(0));
@@ -229,7 +229,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(durationValue + duration));
 	}
 	
-	static void incrementDailyDuration(String key, long time, long duration)
+	private static void incrementDailyDuration(String key, long time, long duration)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingDayTime = Long.parseLong(counter.get(0));
@@ -248,7 +248,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(durationValue + duration));
 	}
 	
-	static void incrementWeeklyDuration(String key, long time, long duration)
+	private static void incrementWeeklyDuration(String key, long time, long duration)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingWeekTime = Long.parseLong(counter.get(0));
@@ -267,7 +267,7 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(durationValue + duration));
 	}
 	
-	static void incrementMonthlyDuration(String key, long time, long duration)
+	private static void incrementMonthlyDuration(String key, long time, long duration)
 	{
 		List<String> counter = jedis.lrange(key, 0, 1);
 		long startingMonthTime = Long.parseLong(counter.get(0));
@@ -283,29 +283,29 @@ public class Aggregations
 		jedis.lset(key, 1, Long.toString(durationValue + duration));
 	}
 	
-	static long monthDifference(long t1, long t2)
+	private static long monthDifference(long t1, long t2)
 	{
 		DateTime dt1 = new DateTime(t1);
 		DateTime dt2 = new DateTime(t2);
 		return (dt1.getYear() - dt2.getYear()) * 12 + (dt1.getMonthOfYear() - dt2.getMonthOfYear());
 	}
 	
-	static long dropLessThanHour(long time)
+	private static long dropLessThanHour(long time)
 	{
 		return time - time % HOUR;
 	}
 	
-	static long dropLessThanDay(long time)
+	private static long dropLessThanDay(long time)
 	{
 		return time - time % DAY;
 	}
 	
-	static long dropLessThanWeek(long time)
+	private static long dropLessThanWeek(long time)
 	{
 		return time - time % WEEK;
 	}
 	
-	static long dropLessThanMonth(long time)
+	private static long dropLessThanMonth(long time)
 	{
 		MutableDateTime mdt = new MutableDateTime(time);
 		mdt.setMillisOfSecond(0);
