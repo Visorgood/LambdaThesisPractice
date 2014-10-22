@@ -26,88 +26,109 @@ public class RedisProxy
 	public void incrementCounters(String key, long time)
 	{
 		pipeline = jedis.pipelined();
-		checkCountersExist(key, time);
+		checkCountersExist(key, CounterType.Count, time);
 		incrementCounter(DurationType.Hour, key, time, 1);
 		incrementCounter(DurationType.Day, key, time, 1);
 		incrementCounter(DurationType.Week, key, time, 1);
 		incrementCounter(DurationType.Month, key, time, 1);
-//		incrementHourlyCounter(key, time, 1);
-//		incrementDailyCounter(key, time, 1);
-//		incrementWeeklyCounter(key, time, 1);
-//		incrementMonthlyCounter(key, time, 1);
 		pipeline = null;
 	}
 
 	public void incrementLengths(String key, long time, int length)
 	{
 		pipeline = jedis.pipelined();
-		pipeline.multi();
-		checkLengthsExist(key, time);
+		checkCountersExist(key, CounterType.Length, time);
 		incrementCounter(DurationType.Hour, key, time, length);
 		incrementCounter(DurationType.Day, key, time, length);
 		incrementCounter(DurationType.Week, key, time, length);
 		incrementCounter(DurationType.Month, key, time, length);
-//		incrementHourlyCounter(key, time, length);
-//		incrementDailyCounter(key, time, length);
-//		incrementWeeklyCounter(key, time, length);
-//		incrementMonthlyCounter(key, time, length);
-		pipeline.exec();
+		pipeline = null;
 	}
 	
 	public void incrementDurations(String key, long time, long duration)
 	{
 		pipeline = jedis.pipelined();
-		pipeline.multi();
-		checkDurationsExist(key, time);
+		checkCountersExist(key, CounterType.Duration, time);
 		incrementDuration(DurationType.Hour, key, time, duration);
 		incrementDuration(DurationType.Day, key, time, duration);
 		incrementDuration(DurationType.Week, key, time, duration);
 		incrementDuration(DurationType.Month, key, time, duration);
-//		incrementHourlyDuration(key, time, duration);
-//		incrementDailyDuration(key, time, duration);
-//		incrementWeeklyDuration(key, time, duration);
-//		incrementMonthlyDuration(key, time, duration);
-		pipeline.exec();
+		pipeline = null;
 	}
 	
 	public void addUserToApp(String appNameUserIdKey, String appNameKey)
 	{
 		//String key = String.format("app:%s:%s:%s", appName, userId, "count_hourly");
 		//String usersCountKey = String.format("app:%s:%s", appName, "users_count");
-		if (!pipeline.exists(appNameUserIdKey + ":count_hourly").get())
+		// to do !!!
+		pipeline = jedis.pipelined();
+		String hourlyCounterKey = String.format("%s:%s:%s", appNameUserIdKey, getCounterName(CounterType.Count), "hourly");
+		if (!pipeline.exists(hourlyCounterKey).get())
 			pipeline.incr(appNameKey + ":users_count");
+		pipeline = null;
 	}
 	
-	private void checkCountersExist(String key, long time)
+	private void checkCountersExist(String key, CounterType counterType, long time)
 	{
-		if (!pipeline.exists(key + ":count_hourly").get())
+		String counterName = getCounterName(counterType);
+		String hourlyCounterKey = String.format("%s:%s:%s", key, counterName, "hourly");
+		String dailyCounterKey = String.format("%s:%s:%s", key, counterName, "daily");
+		String weeklyCounterKey = String.format("%s:%s:%s", key, counterName, "weekly");
+		String monthlyCounterKey = String.format("%s:%s:%s", key, counterName, "monthly");
+		Boolean success = false;
+		while (!success)
 		{
-			pipeline.rpush(key + ":count_hourly", Long.toString(dropLessThanHour(time)), "0");
-			pipeline.rpush(key + ":count_daily", Long.toString(dropLessThanDay(time)), "0");
-			pipeline.rpush(key + ":count_weekly", Long.toString(dropLessThanWeek(time)), "0");
-			pipeline.rpush(key + ":count_monthly", Long.toString(dropLessThanMonth(time)), "0");
+			pipeline.watch(hourlyCounterKey, dailyCounterKey, weeklyCounterKey, monthlyCounterKey);
+			boolean exists = pipeline.exists(hourlyCounterKey).get() && pipeline.exists(dailyCounterKey).get() && pipeline.exists(weeklyCounterKey).get() && pipeline.exists(monthlyCounterKey).get();
+			pipeline.multi();
+			if (!exists)
+			{
+				pipeline.del(hourlyCounterKey);
+				pipeline.del(dailyCounterKey);
+				pipeline.del(weeklyCounterKey);
+				pipeline.del(monthlyCounterKey);
+				pipeline.rpush(hourlyCounterKey, Long.toString(dropLessThanHour(time)), "0");
+				pipeline.rpush(dailyCounterKey, Long.toString(dropLessThanDay(time)), "0");
+				pipeline.rpush(weeklyCounterKey, Long.toString(dropLessThanWeek(time)), "0");
+				pipeline.rpush(monthlyCounterKey, Long.toString(dropLessThanMonth(time)), "0");
+				
+			}
+			pipeline.exec();
 		}
 	}
 	
-	private void checkLengthsExist(String key, long time)
+	private void incrementCounter(DurationType durationType, String key, long time, long valueToIncrement)
 	{
-		if (!pipeline.exists(key + ":length_hourly").get())
+		Boolean success = false;
+		while (!success)
 		{
-			pipeline.rpush(key + ":length_hourly", Long.toString(dropLessThanHour(time)), "0");
-			pipeline.rpush(key + ":length_daily", Long.toString(dropLessThanDay(time)), "0");
-			pipeline.rpush(key + ":length_weekly", Long.toString(dropLessThanWeek(time)), "0");
-			pipeline.rpush(key + ":length_monthly", Long.toString(dropLessThanMonth(time)), "0");
+			pipeline.watch(key);
+			List<String> value = pipeline.lrange(key, 0, 1).get();
+			pipeline.multi();
+			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
+			if (updateStartingTime(counter, time, 0))
+				pipeline.lset(key, 0, Long.toString(counter.startTime));
+			counter.value += valueToIncrement;
+			pipeline.lset(key, 1, Long.toString(counter.value));
+			success = (pipeline.exec() != null);
 		}
 	}
 	
-	private void checkDurationsExist(String key, long time)
+	private void incrementDuration(DurationType durationType, String key, long time, long duration)
 	{
-		if (!pipeline.exists(key + ":duration_hourly").get())
+		Boolean success = false;
+		while (!success)
 		{
-			pipeline.rpush(key + ":duration_hourly", Long.toString(dropLessThanHour(time)), "0");
-			pipeline.rpush(key + ":duration_daily", Long.toString(dropLessThanDay(time)), "0");
-			pipeline.rpush(key + ":duration_weekly", Long.toString(dropLessThanWeek(time)), "0");
-			pipeline.rpush(key + ":duration_monthly", Long.toString(dropLessThanMonth(time)), "0");
+			pipeline.watch(key);
+			List<String> value = pipeline.lrange(key, 0, 1).get();
+			pipeline.multi();
+			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
+			if (updateStartingTime(counter, time, duration))
+				pipeline.lset(key, 0, Long.toString(counter.startTime));
+			if (time < counter.startTime)
+				counter.value = duration - (counter.startTime - time);
+			pipeline.lset(key, 1, Long.toString(counter.value));
+			success = (pipeline.exec() != null);
 		}
 	}
 	
@@ -130,8 +151,25 @@ public class RedisProxy
 		Hour, Day, Week, Month
 	}
 	
-	private void updateStartingTime(Counter counter, long time, long duration)
+	private enum CounterType
 	{
+		Count, Length, Duration
+	}
+	
+	private String getCounterName(CounterType counterType)
+	{
+		switch (counterType)
+		{
+		case Count: return "count";
+		case Length: return "length";
+		case Duration: return "duration";
+		}
+		return null;
+	}
+	
+	private boolean updateStartingTime(Counter counter, long time, long duration)
+	{
+		boolean updated = false;
 		long endTime = time + duration;
 		switch (counter.durationType)
 		{
@@ -140,61 +178,31 @@ public class RedisProxy
 			{
 				counter.startTime = dropLessThanHour(endTime);
 				counter.value = 0;
+				updated = true;
 			}
 		case Day:
 			if (dayDifference(endTime, counter.startTime) > 0)
 			{
 				counter.startTime = dropLessThanDay(endTime);
 				counter.value = 0;
+				updated = true;
 			}
 		case Week:
 			if (weekDifference(endTime, counter.startTime) > 0)
 			{
 				counter.startTime = dropLessThanWeek(endTime);
 				counter.value = 0;
+				updated = true;
 			}
 		case Month:
 			if (monthDifference(endTime, counter.startTime) > 0)
 			{
 				counter.startTime = dropLessThanMonth(endTime);
 				counter.value = 0;
+				updated = true;
 			}
 		}
-	}
-	
-	private void incrementCounter(DurationType durationType, String key, long time, long valueToIncrement)
-	{
-		Boolean success = false;
-		while (!success)
-		{
-			pipeline.watch(key);
-			List<String> value = pipeline.lrange(key, 0, 1).get();
-			pipeline.multi();
-			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
-			updateStartingTime(counter, time, 0);
-			counter.value += valueToIncrement;
-			pipeline.lset(key, 0, Long.toString(counter.startTime));
-			pipeline.lset(key, 1, Long.toString(counter.value));
-			success = (pipeline.exec() != null);
-		}
-	}
-	
-	private void incrementDuration(DurationType durationType, String key, long time, long duration)
-	{
-		Boolean success = false;
-		while (!success)
-		{
-			pipeline.watch(key);
-			List<String> value = pipeline.lrange(key, 0, 1).get();
-			pipeline.multi();
-			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
-			updateStartingTime(counter, time, duration);
-			if (time < counter.startTime)
-				counter.value = duration - (counter.startTime - time);
-			pipeline.lset(key, 0, Long.toString(counter.startTime));
-			pipeline.lset(key, 1, Long.toString(counter.value));
-			success = (pipeline.exec() != null);
-		}
+		return updated;
 	}
 	
 	private static long hourDifference(long t1, long t2)
