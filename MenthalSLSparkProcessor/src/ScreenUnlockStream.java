@@ -11,12 +11,11 @@ public class ScreenUnlockStream extends EventProcessingStream implements java.io
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
+	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
 		long userId = (long)record.get("user_id");
 		long time = (long)record.get("time");
-		EventAggregator eventAggregator = new EventAggregator("localhost");
 		eventAggregator.processScreenUnlock(userId, time);
 	}
 }

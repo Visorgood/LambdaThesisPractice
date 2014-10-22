@@ -11,14 +11,13 @@ public class CallOutgoingStream extends EventProcessingStream implements java.io
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
+	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
 		long userId = (long)record.get("user_id");
 		long time = (long)record.get("time");
 		String contactHash = (String)record.get("contactHash");
 		long duration = (long)record.get("duration");
-		EventAggregator eventAggregator = new EventAggregator("localhost");
 		eventAggregator.processCallOutgoing(userId, time, contactHash, time, duration);
 	}
 }
