@@ -6,7 +6,6 @@ import org.joda.time.MutableDateTime;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Response;
 
 public class RedisProxy
 {
@@ -56,15 +55,18 @@ public class RedisProxy
 		pipeline = null;
 	}
 	
-	public void addUserToApp(String appNameUserIdKey, String appNameKey)
+	public void addUserToApp(String appNameKey, long userId)
 	{
-		//String key = String.format("app:%s:%s:%s", appName, userId, "count_hourly");
-		//String usersCountKey = String.format("app:%s:%s", appName, "users_count");
-		// to do !!!
 		pipeline = jedis.pipelined();
-		String hourlyCounterKey = String.format("%s:%s:%s", appNameUserIdKey, getCounterName(CounterType.Count), "hourly");
-		if (!pipeline.exists(hourlyCounterKey).get())
-			pipeline.incr(appNameKey + ":users_count");
+		String key = String.format("%s:%s", appNameKey, "users_count");
+		Boolean success = false;
+		while (!success)
+		{
+			pipeline.watch(key);
+			pipeline.multi();
+			pipeline.sadd(key, Long.toString(userId));
+			success = (pipeline.exec() != null);
+		}
 		pipeline = null;
 	}
 	
