@@ -76,7 +76,7 @@ public class EventGenerator
 	
 	private static void generateAppInstallEvent(GenericRecord record)
 	{
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", generateTime());
 		record.put("appName", generateAppName());
@@ -94,21 +94,21 @@ public class EventGenerator
 	
 	private static void generateScreenOffEvent(GenericRecord record)
 	{
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", generateTime());
 	}
 	
 	private static void generateScreenUnlockEvent(GenericRecord record)
 	{
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", generateTime());
 	}
 	
 	private static void generateSmsReceivedEvent(GenericRecord record)
 	{
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", generateTime());
 		record.put("contactHash", generateContactHash());
@@ -117,7 +117,7 @@ public class EventGenerator
 	
 	private static void generateSmsSentEvent(GenericRecord record)
 	{
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", generateTime());
 		record.put("contactHash", generateContactHash());
@@ -127,7 +127,7 @@ public class EventGenerator
 	private static void generateCallOutgoingEvent(GenericRecord record)
 	{
 		long time = generateTime();
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", time);
 		record.put("contactHash", generateContactHash());
@@ -138,7 +138,7 @@ public class EventGenerator
 	private static void generateCallReceivedEvent(GenericRecord record)
 	{
 		long time = generateTime();
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", time);
 		record.put("contactHash", generateContactHash());
@@ -149,7 +149,7 @@ public class EventGenerator
 	private static void generateCallMissedEvent(GenericRecord record)
 	{
 		long time = generateTime();
-		record.put("id", 1);
+		record.put("id", 1L);
 		record.put("userId", generateUserId());
 		record.put("time", time);
 		record.put("contactHash", generateContactHash());
