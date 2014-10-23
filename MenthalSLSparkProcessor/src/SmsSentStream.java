@@ -13,9 +13,9 @@ public class SmsSentStream extends EventProcessingStream implements java.io.Seri
 	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
-		long userId = (long)record.get("user_id");
+		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
-		String contactHash = (String)record.get("contactHash");
+		String contactHash = record.get("contactHash").toString();
 		int msgLength = (int)record.get("msgLength");
 		eventAggregator.processSmsSent(userId, time, contactHash, msgLength);
 	}

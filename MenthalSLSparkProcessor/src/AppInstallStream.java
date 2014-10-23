@@ -13,8 +13,8 @@ public class AppInstallStream extends EventProcessingStream implements java.io.S
 	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
-		long userId = (long)record.get("user_id");
-		String appName = (String)record.get("app_name");
+		long userId = (long)record.get("userId");
+		String appName = record.get("appName").toString();
 		long time = (long)record.get("time");
 		eventAggregator.processAppInstall(userId, appName, time);
 	}

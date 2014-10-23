@@ -14,7 +14,7 @@ public class ScreenUnlockStream extends EventProcessingStream implements java.io
 	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
-		long userId = (long)record.get("user_id");
+		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
 		eventAggregator.processScreenUnlock(userId, time);
 	}

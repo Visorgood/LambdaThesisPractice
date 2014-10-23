@@ -14,10 +14,10 @@ public class AppSessionStream extends EventProcessingStream implements java.io.S
 	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
-		long userId = (long)record.get("user_id");
+		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
 		long duration = (long)record.get("duration");
-		String appName = (String)record.get("app_name");
+		String appName = record.get("appName").toString();
 		eventAggregator.processAppSession(userId, time, duration, appName);
 	}
 }
