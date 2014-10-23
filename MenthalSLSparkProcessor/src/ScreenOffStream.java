@@ -11,7 +11,7 @@ public class ScreenOffStream extends EventProcessingStream implements java.io.Se
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
+	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
 	}

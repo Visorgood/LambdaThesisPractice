@@ -10,14 +10,13 @@ public class SmsSentStream extends EventProcessingStream implements java.io.Seri
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
+	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
 		long userId = (long)record.get("user_id");
 		long time = (long)record.get("time");
 		String contactHash = (String)record.get("contactHash");
 		int msgLength = (int)record.get("msgLength");
-		EventAggregator eventAggregator = new EventAggregator("localhost");
 		eventAggregator.processSmsSent(userId, time, contactHash, msgLength);
 	}
 }

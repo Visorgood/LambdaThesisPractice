@@ -1,5 +1,6 @@
 import java.util.Map;
 import java.util.HashMap;
+
 import org.apache.spark.SparkConf;
 import org.apache.spark.streaming.Duration;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
@@ -18,7 +19,7 @@ public final class Main
   {
 
     SparkConf sparkConf = new SparkConf().setAppName("MenthalSLSparkProcessor");
-    sparkConf.setMaster("local[2]");
+    sparkConf.setMaster(String.format("local[%d]", eventNames.length + 1));
     // Create the context with a 1 second batch size
     JavaStreamingContext jssc = new JavaStreamingContext(sparkConf, new Duration(1000));
     
