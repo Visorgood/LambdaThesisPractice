@@ -55,10 +55,9 @@ public class RedisProxy
 		pipeline = null;
 	}
 	
-	public void addUserToApp(String appNameKey, long userId)
+	public void addUserToApp(String key, long userId)
 	{
 		pipeline = jedis.pipelined();
-		String key = String.format("%s:%s", appNameKey, "users_count");
 		Boolean success = false;
 		while (!success)
 		{

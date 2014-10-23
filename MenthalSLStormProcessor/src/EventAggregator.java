@@ -10,7 +10,8 @@ public class EventAggregator
 	
 	void processAppInstall(long userId, String appName, long time)
 	{
-		redisProxy.addUserToApp(appName, "user" + Long.toString(userId));
+		String key = String.format("app:%s:%s", appName, "users_count");
+		redisProxy.addUserToApp(key, userId);
 	}
 	
 	void processAppSession(long userId, long time, long duration, String appName)
