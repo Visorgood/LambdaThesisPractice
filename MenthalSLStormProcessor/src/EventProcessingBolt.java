@@ -15,6 +15,11 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
+// base class for all bolts, that process events of different types
+// has a field schemaName, that must be initialized in the constructor of a specific bolt
+// has an abstract method processEvent, that must be overriden in each specific bolt class
+// has a method getEventProcessingBoltByEventName, that return new object of a particular bolt, specified by event name
+
 public abstract class EventProcessingBolt extends BaseRichBolt
 {
 	private static final long serialVersionUID = -8386633614335300892L;
