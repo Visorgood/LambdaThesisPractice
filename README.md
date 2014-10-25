@@ -15,39 +15,39 @@ List of event types being processed:
     call_missed
 
 
-<h2>EventGenerator</h2>
+<h3>EventGenerator</h3>
 
 Generates random events of different types, prints them out to the console, and sends them to Kafka.
 Those events can be then processed by Storm and Spark.
 
-<h2>KafkaAvroProducer</h2>
+<h3>KafkaAvroProducer</h3>
 
-Takes events form avro files, and sends them to kafka.
-We don't use this prject any more.
+Takes events from avro files, and sends them to kafka.
+We don't use this project any more.
 
-<h2>MenthalSLStormProcessor</h2>
+<h3>MenthalSLStormProcessor</h3>
 
 Our main project, that contains data processing using Storm.
 
-<h2>MenthalSLSparkProcessor</h2>
+<h3>MenthalSLSparkProcessor</h3>
 
 Our second main project, that contains data processing using Spark.
 
-<h2>ParquetAvroConverter</h2>
+<h3>ParquetAvroConverter</h3>
 
 Takes parquet file, parses it using SparkPlayingField library, and saves data to avro files.
 We don't use this prject any more.
 
-<h2>SparkWordCount</h2>
+<h3>SparkWordCount</h3>
 
 Simple test project to try Spark via word counting.
 
-<h2>TestJedis</h2>
+<h3>TestJedis</h3>
 
 Test project to try playing with Redis and Jedis.
 It is already quite obsolete, and can be easily deleted.
 
-<h2>TestStorm</h2>
+<h3>TestStorm</h3>
 
 Old Storm project, that is now recreated as MenthalSLStormProcessor.
 It is now obsolete, and can be deleted.
