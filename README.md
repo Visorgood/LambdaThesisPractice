@@ -15,7 +15,7 @@ List of event types being processed:
     call_missed
 
 
-EventGenerator
+<h1>EventGenerator</h1>
 
 Generates random events of different types, prints them out to the console, and sends them to Kafka.
 Those events can be then processed by Storm and Spark.
