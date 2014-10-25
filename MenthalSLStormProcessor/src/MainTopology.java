@@ -29,11 +29,13 @@ public class MainTopology
 			String zkRoot = "/kafka-spout";
 			// ID for storing consumer offsets in Zookeeper
 			// The spout appends this id to zkRoot when composing its ZooKeeper path.  You don't need a leading `/`.
-			String zkSpoutId = eventName;// + "-kafka-storm-starter";
+			String zkSpoutId = eventName;
 			SpoutConfig spoutConfig = new SpoutConfig(zkHosts, topic, zkRoot, zkSpoutId);
 			spoutConfig.zkPort = 5181;
 			spoutConfig.startOffsetTime = -2;
 			spoutConfig.forceFromStart = true;
+			// for each event type we create one kafka spout and one bolt of specific subclass
+			// for each event type kafka must have dedicated topic
 			topologyBuilder.setSpout(eventName + "-KafkaSpout", new KafkaSpout(spoutConfig), 1);
 			topologyBuilder.setBolt(eventName + "-Bolt", EventProcessingBolt.getEventProcessingBoltByEventName(eventName), 1).shuffleGrouping(eventName + "-KafkaSpout");
 		}
