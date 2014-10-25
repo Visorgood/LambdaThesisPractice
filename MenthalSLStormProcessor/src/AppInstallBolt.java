@@ -14,8 +14,8 @@ public class AppInstallBolt extends EventProcessingBolt
 	{
 		System.out.println(schemaName + "-Bolt: " + record.toString());
 		long userId = (long)record.get("userId");
-		String appName = record.get("appName").toString();
 		long time = (long)record.get("time");
-		eventAggregator.processAppInstall(userId, appName, time);
+		String appName = record.get("appName").toString();
+		eventAggregator.processAppInstall(userId, time, appName);
 	}
 }

@@ -24,63 +24,49 @@ public class RedisProxy
 	
 	public void incrementCounters(String key, long time)
 	{
-		pipeline = jedis.pipelined();
 		checkCountersExist(key, CounterType.Count, time);
-		incrementCounter(DurationType.Hour, key, time, 1);
-		incrementCounter(DurationType.Day, key, time, 1);
-		incrementCounter(DurationType.Week, key, time, 1);
-		incrementCounter(DurationType.Month, key, time, 1);
-		pipeline = null;
+		incrementCounter(DurationType.Hour, CounterType.Count, key, time, 1);
+		incrementCounter(DurationType.Day, CounterType.Count, key, time, 1);
+		incrementCounter(DurationType.Week, CounterType.Count, key, time, 1);
+		incrementCounter(DurationType.Month, CounterType.Count, key, time, 1);
 	}
 
 	public void incrementLengths(String key, long time, int length)
 	{
-		pipeline = jedis.pipelined();
 		checkCountersExist(key, CounterType.Length, time);
-		incrementCounter(DurationType.Hour, key, time, length);
-		incrementCounter(DurationType.Day, key, time, length);
-		incrementCounter(DurationType.Week, key, time, length);
-		incrementCounter(DurationType.Month, key, time, length);
-		pipeline = null;
+		incrementCounter(DurationType.Hour, CounterType.Length, key, time, length);
+		incrementCounter(DurationType.Day, CounterType.Length, key, time, length);
+		incrementCounter(DurationType.Week, CounterType.Length, key, time, length);
+		incrementCounter(DurationType.Month, CounterType.Length, key, time, length);
 	}
 	
 	public void incrementDurations(String key, long time, long duration)
 	{
-		pipeline = jedis.pipelined();
 		checkCountersExist(key, CounterType.Duration, time);
 		incrementDuration(DurationType.Hour, key, time, duration);
 		incrementDuration(DurationType.Day, key, time, duration);
 		incrementDuration(DurationType.Week, key, time, duration);
 		incrementDuration(DurationType.Month, key, time, duration);
-		pipeline = null;
 	}
 	
 	public void addUserToApp(String key, long userId)
 	{
-		pipeline = jedis.pipelined();
-		Boolean success = false;
-		while (!success)
-		{
-			pipeline.watch(key);
-			pipeline.multi();
-			pipeline.sadd(key, Long.toString(userId));
-			success = (pipeline.exec() != null);
-		}
-		pipeline = null;
+		pipeline.sadd(key, Long.toString(userId));
 	}
 	
 	private void checkCountersExist(String key, CounterType counterType, long time)
 	{
 		String counterName = getCounterName(counterType);
-		String hourlyCounterKey = String.format("%s:%s:%s", key, counterName, "hourly");
-		String dailyCounterKey = String.format("%s:%s:%s", key, counterName, "daily");
-		String weeklyCounterKey = String.format("%s:%s:%s", key, counterName, "weekly");
-		String monthlyCounterKey = String.format("%s:%s:%s", key, counterName, "monthly");
+		String hourlyCounterKey = String.format("%s:%s:%s", key, counterName, getDurationName(DurationType.Hour));
+		String dailyCounterKey = String.format("%s:%s:%s", key, counterName, getDurationName(DurationType.Day));
+		String weeklyCounterKey = String.format("%s:%s:%s", key, counterName, getDurationName(DurationType.Week));
+		String monthlyCounterKey = String.format("%s:%s:%s", key, counterName, getDurationName(DurationType.Month));
 		Boolean success = false;
 		while (!success)
 		{
-			pipeline.watch(hourlyCounterKey, dailyCounterKey, weeklyCounterKey, monthlyCounterKey);
-			boolean exists = pipeline.exists(hourlyCounterKey).get() && pipeline.exists(dailyCounterKey).get() && pipeline.exists(weeklyCounterKey).get() && pipeline.exists(monthlyCounterKey).get();
+			jedis.watch(hourlyCounterKey, dailyCounterKey, weeklyCounterKey, monthlyCounterKey);
+			boolean exists = jedis.exists(hourlyCounterKey) && jedis.exists(dailyCounterKey) && jedis.exists(weeklyCounterKey) && jedis.exists(monthlyCounterKey);
+			pipeline = jedis.pipelined();
 			pipeline.multi();
 			if (!exists)
 			{
@@ -94,17 +80,20 @@ public class RedisProxy
 				pipeline.rpush(monthlyCounterKey, Long.toString(dropLessThanMonth(time)), "0");
 				
 			}
-			pipeline.exec();
+			success = (pipeline.exec() != null);
 		}
+		pipeline.sync();
 	}
 	
-	private void incrementCounter(DurationType durationType, String key, long time, long valueToIncrement)
+	private void incrementCounter(DurationType durationType, CounterType counterType, String key, long time, long valueToIncrement)
 	{
+		key = String.format("%s:%s:%s", key, getCounterName(counterType), getDurationName(durationType));
 		Boolean success = false;
 		while (!success)
 		{
-			pipeline.watch(key);
-			List<String> value = pipeline.lrange(key, 0, 1).get();
+			jedis.watch(key);
+			List<String> value = jedis.lrange(key, 0, 1);
+			pipeline = jedis.pipelined();
 			pipeline.multi();
 			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
 			if (updateStartingTime(counter, time, 0))
@@ -113,15 +102,18 @@ public class RedisProxy
 			pipeline.lset(key, 1, Long.toString(counter.value));
 			success = (pipeline.exec() != null);
 		}
+		pipeline.sync();
 	}
 	
 	private void incrementDuration(DurationType durationType, String key, long time, long duration)
 	{
+		key = String.format("%s:%s:%s", key, getCounterName(CounterType.Duration), getDurationName(durationType));
 		Boolean success = false;
 		while (!success)
 		{
-			pipeline.watch(key);
-			List<String> value = pipeline.lrange(key, 0, 1).get();
+			jedis.watch(key);
+			List<String> value = jedis.lrange(key, 0, 1);
+			pipeline = jedis.pipelined();
 			pipeline.multi();
 			Counter counter = new Counter(durationType, Long.parseLong(value.get(0)), Long.parseLong(value.get(1)));
 			if (updateStartingTime(counter, time, duration))
@@ -131,6 +123,7 @@ public class RedisProxy
 			pipeline.lset(key, 1, Long.toString(counter.value));
 			success = (pipeline.exec() != null);
 		}
+		pipeline.sync();
 	}
 	
 	private class Counter
@@ -150,6 +143,18 @@ public class RedisProxy
 	private enum DurationType
 	{
 		Hour, Day, Week, Month
+	}
+	
+	private String getDurationName(DurationType durationType)
+	{
+		switch (durationType)
+		{
+		case Hour: return "hourly";
+		case Day: return "daily";
+		case Week: return "weekly";
+		case Month: return "monthly";
+		}
+		return null;
 	}
 	
 	private enum CounterType

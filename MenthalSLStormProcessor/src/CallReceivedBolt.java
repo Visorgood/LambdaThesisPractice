@@ -16,7 +16,7 @@ public class CallReceivedBolt extends EventProcessingBolt
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
 		String contactHash = record.get("contactHash").toString();
-		long duration = (long)record.get("duration");
+		long duration = (long)record.get("durationInMillis");
 		eventAggregator.processCallReceived(userId, time, contactHash, time, duration);
 	}
 }
