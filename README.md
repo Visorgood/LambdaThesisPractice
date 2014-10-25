@@ -36,7 +36,7 @@ Our second main project, that contains data processing using Spark.
 <h3>ParquetAvroConverter</h3>
 
 Takes parquet file, parses it using SparkPlayingField library, and saves data to avro files.
-We don't use this prject any more.
+We don't use this project any more.
 
 <h3>SparkWordCount</h3>
 
