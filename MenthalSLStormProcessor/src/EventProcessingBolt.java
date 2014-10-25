@@ -18,7 +18,7 @@ import backtype.storm.tuple.Tuple;
 // base class for all bolts, that process events of different types
 // has a field schemaName, that must be initialized in the constructor of a specific bolt
 // has an abstract method processEvent, that must be overriden in each specific bolt class
-// has a method getEventProcessingBoltByEventName, that return new object of a particular bolt, specified by event name
+// has a method getEventProcessingBoltByEventName, that returns a new object of a particular bolt, specified by event name
 
 public abstract class EventProcessingBolt extends BaseRichBolt
 {
