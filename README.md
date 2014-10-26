@@ -3,18 +3,18 @@ LambdaThesisPractice
 
 Practical part of the LambdaThesis project
 
-<p>
 List of event types being processed:
-    app_install
-    app_session
-    screen_off
-    screen_unlock
-    sms_received
-    sms_sent
-    call_outgoing
-    call_received
-    call_missed
-</p>
+<ul>
+<li>app_install</li>
+<li>app_session</li>
+<li>screen_off</li>
+<li>screen_unlock</li>
+<li>sms_received</li>
+<li>sms_sent</li>
+<li>call_outgoing</li>
+<li>call_received</li>
+<li>call_missed</li>
+</ul>
 
 <h3>EventGenerator</h3>
 
