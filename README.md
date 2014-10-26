@@ -51,6 +51,30 @@ In the final Redis database, that plays the role of real-time views of the speed
 <li>user:allUsers:$phone_hash:missed_call_count:* counters</li>
 </ul>
 
+Each time * means, that there are 4 counters with that base name and additional part, for example<br />
+<br />
+app:$app_name:$user_id:sessions:* counters - means that there are exactly the following keys
+<ul>
+<li>app:$app_name:$user_id:sessions:count:hourly</li>
+<li>app:$app_name:$user_id:sessions:count:daily</li>
+<li>app:$app_name:$user_id:sessions:count:weekly</li>
+<li>app:$app_name:$user_id:sessions:count:monthly</li>
+</ul>
+<br />
+app:$app_name:$user_id:total_time:* durations - means that there are
+<ul>
+<li>app:$app_name:$user_id:total_time:duration:hourly</li>
+<li>app:$app_name:$user_id:total_time:duration:daily</li>
+<li>app:$app_name:$user_id:total_time:duration:weekly</li>
+<li>app:$app_name:$user_id:total_time:duration:monthly</li>
+</ul>
+user:$user_id:$phone_hash:incoming_msg_length:* lengths - means that there are
+<ul>
+<li>user:$user_id:$phone_hash:incoming_msg_length:length:hourly</li>
+<li>user:$user_id:$phone_hash:incoming_msg_length:length:daily</li>
+<li>user:$user_id:$phone_hash:incoming_msg_length:length:weekly</li>
+<li>user:$user_id:$phone_hash:incoming_msg_length:length:monthly</li>
+</ul>
 <h3>EventGenerator</h3>
 
 Generates random events of different types, prints them out to the console, and sends them to Kafka.<br />
