@@ -207,7 +207,7 @@ public class EventGenerator {
 	
 	// generate app name in the range [1; NUMBER_OF_APPS]
 	private static String generateAppName() {
-		return "app" + Long.toString(genInt() % NUMBER_OF_APPS + 1);
+		return "app" + Integer.toString(genInt() % NUMBER_OF_APPS + 1);
 	}
 	
 	// generate "contact hash" in the range [1; NUMBER_OF_USERS]
@@ -217,7 +217,7 @@ public class EventGenerator {
 	
 	// generate window title in the range [1; NUMBER_OF_WINDOWS]
 	private static String generateWindowTitle() {
-		return "windowTitle" + Long.toString(genInt() % NUMBER_OF_WINDOWS + 1);
+		return "windowTitle" + Integer.toString(genInt() % NUMBER_OF_WINDOWS + 1);
 	}
 	
 	// generate message length in the range [1; MAX_MSG_LENGTH]
