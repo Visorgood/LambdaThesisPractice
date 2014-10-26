@@ -16,6 +16,16 @@ public class RedisProxy
 	private final Jedis jedis; // the main redis connection provider
 	private Pipeline pipeline; // class that allows to send requests to redis in batches through the network
 	
+	// to send requests to Redis we use pipelines
+	// it works as follows:
+	// we execute WATCH command for keys we want to retrieve and then change
+	// we retrieve them, start pipeline, execute some logic as a transaction,
+	// and send data to Redis using pipeline's methods exec and sync
+	// if after WATCH command any of watched keys in Redis were changed by somebody else,
+	// exec command will return null, and processing will start again
+	// the point to use pipeline is to send requests to Redis in batch through the network
+	// the point to use transaction within pipeline is to be sure, that all commands will be executed as one atomic command
+	
 	public RedisProxy(String host)
 	{
 		jedis = new Jedis(host);
