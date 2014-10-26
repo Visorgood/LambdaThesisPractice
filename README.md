@@ -3,6 +3,7 @@ LambdaThesisPractice
 
 Practical part of the LambdaThesis project
 
+<div>
 List of event types being processed:
     app_install
     app_session
@@ -13,7 +14,7 @@ List of event types being processed:
     call_outgoing
     call_received
     call_missed
-
+</div>
 
 <h3>EventGenerator</h3>
 
