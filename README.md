@@ -3,44 +3,45 @@ LambdaThesisPractice
 
 Practical part of the LambdaThesis project
 
-<h3>EventGenerator</h3>
+<h4>EventGenerator</h4>
 
 Generates random events of different types, prints them out to the console, and sends them to Kafka.<br />
 Those events can be then processed by Storm and Spark.
 
-<h3>KafkaAvroProducer</h3>
+<h4>KafkaAvroProducer</h4>
 
 Takes events from avro files, and sends them to kafka.<br />
 We don't use this project any more.
 
-<h3>MenthalSLStormProcessor</h3>
+<h4>MenthalSLStormProcessor</h4>
 
 Our main project, that contains data processing using Storm.
 
-<h3>MenthalSLSparkProcessor</h3>
+<h4>MenthalSLSparkProcessor</h4>
 
 Our second main project, that contains data processing using Spark.
 
-<h3>ParquetAvroConverter</h3>
+<h4>ParquetAvroConverter</h4>
 
 Takes parquet file, parses it using SparkPlayingField library, and saves data to avro files.<br />
 We don't use this project any more.
 
-<h3>SparkWordCount</h3>
+<h4>SparkWordCount</h4>
 
 Simple test project to try Spark via word counting.
 
-<h3>TestJedis</h3>
+<h4>TestJedis</h4>
 
 Test project to try playing with Redis and Jedis.<br />
 It is already quite obsolete, and can be easily deleted.
 
-<h3>TestStorm</h3>
+<h4>TestStorm</h4>
 
 Old Storm project, that is now recreated as MenthalSLStormProcessor.<br />
 It is now obsolete, and can be deleted.
 
-List of event types being processed:
+<h4>List of processed events</h4>
+
 <ul>
 <li>app_install</li>
 <li>app_session</li>
@@ -52,6 +53,8 @@ List of event types being processed:
 <li>call_received</li>
 <li>call_missed</li>
 </ul>
+
+<h4>Keys in Redis</h4>
 
 In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys:<br />
 <ul>
