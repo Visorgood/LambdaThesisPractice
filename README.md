@@ -16,6 +16,26 @@ List of event types being processed:
 <li>call_missed</li>
 </ul>
 
+In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys:<br />
+
+app:$app_name:$user_id:sessions:* counters
+app:$app_name:$user_id:total_time:* durations
+user:$user_id:$app_name:app_usage:* counters
+user:ALL_USERS_ID:$app_name:app_usage:* counters
+user:$user_id:$app_name:app_starts:* durations
+user:ALL_USERS_ID:$app_name:app_starts:* durations
+
+user:$user_id:screen_lock:* counters
+
+user:$user_id:$phone_hash:incoming_msg_count:* counters
+user:ALL_USERS_ID:$phone_hash:incoming_msg_count:* counters
+user:$user_id:$phone_hash:incoming_msg_length:* lengths
+user:ALL_USERS_ID:$phone_hash:incoming_msg_length:* lengths
+
+user:$user_id:$phone_hash:outgoing_msg_count:* counters
+user:ALL_USERS_ID:$phone_hash:outgoing_msg_count:* counters
+user:$user_id:$phone_hash:outgoing_msg_length:* lengths
+user:ALL_USERS_ID:$phone_hash:outgoing_msg_length:* lengths
 
 
 <h3>EventGenerator</h3>
