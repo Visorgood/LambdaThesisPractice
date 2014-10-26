@@ -1,17 +1,14 @@
 import org.apache.avro.generic.GenericRecord;
 
-public class AppInstallBolt extends EventProcessingBolt
-{
+public class AppInstallBolt extends EventProcessingBolt {
 	private static final long serialVersionUID = -5069348287754598035L;
 
-	public AppInstallBolt()
-	{
+	public AppInstallBolt() {
 		schemaName = "app_install";
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
-	{
+	protected void processEvent(GenericRecord record) {
 		System.out.println(schemaName + "-Bolt: " + record.toString());
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");

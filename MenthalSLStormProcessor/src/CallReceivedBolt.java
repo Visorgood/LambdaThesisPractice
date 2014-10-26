@@ -1,17 +1,14 @@
 import org.apache.avro.generic.GenericRecord;
 
-public class CallReceivedBolt extends EventProcessingBolt
-{
+public class CallReceivedBolt extends EventProcessingBolt {
 	private static final long serialVersionUID = -7580395188906387752L;
 
-	public CallReceivedBolt()
-	{
+	public CallReceivedBolt() {
 		schemaName = "call_received";
 	}
 
 	@Override
-	protected void processEvent(GenericRecord record)
-	{
+	protected void processEvent(GenericRecord record) {
 		System.out.println(schemaName + "-Bolt: " + record.toString());
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");

@@ -10,19 +10,17 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 
-public class MainTopology
-{
+public class MainTopology {	
 	private static String[] eventNames = new String[] {
-		"app_install", "app_session" , "screen_off",
-		"screen_unlock", "sms_received", "sms_sent",
-		"call_outgoing", "call_received", "call_missed"};
+		"app_install", "app_session" , "call_missed", "call_outgoing",
+		"call_received", "dreaming_started", "dreaming_stopped", "phone_shutdown",
+		"screen_off", "screen_on", "screen_unlock", "sms_received",
+		"sms_sent", "window_state_changed"};
 	
-	public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException
-	{
+	public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
 		TopologyBuilder topologyBuilder = new TopologyBuilder();
 		
-		for (String eventName : eventNames)
-		{
+		for (String eventName : eventNames) {
 			ZkHosts zkHosts = new ZkHosts("localhost:5181","/brokers");
 			String topic = eventName;
 			// Root path in Zookeeper for the spout to store consumer offsets
@@ -43,14 +41,11 @@ public class MainTopology
 		Config conf = new Config();
 		conf.setDebug(true);
 		
-		if (args != null && args.length > 0)
-		{
+		if (args != null && args.length > 0) {
 			conf.setNumWorkers(1);
 			StormTopology topology = topologyBuilder.createTopology();
 			StormSubmitter.submitTopologyWithProgressBar(args[0], conf, topology);
-		}
-		else
-		{
+		} else {
 			LocalCluster cluster = new LocalCluster();
 			cluster.submitTopology("test-topology", conf, topologyBuilder.createTopology());
 			Utils.sleep(20000);

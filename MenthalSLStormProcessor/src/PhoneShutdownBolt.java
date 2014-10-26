@@ -1,10 +1,10 @@
 import org.apache.avro.generic.GenericRecord;
 
-public class ScreenUnlockBolt extends EventProcessingBolt {
-	private static final long serialVersionUID = 3729137447796160786L;
+public class PhoneShutdownBolt extends EventProcessingBolt {
+	private static final long serialVersionUID = -6496631773419252572L;
 
-	public ScreenUnlockBolt() {
-		schemaName = "screen_unlock";
+	public PhoneShutdownBolt() {
+		schemaName = "phone_shutdown";
 	}
 
 	@Override
@@ -12,6 +12,6 @@ public class ScreenUnlockBolt extends EventProcessingBolt {
 		System.out.println(schemaName + "-Bolt: " + record.toString());
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
-		eventAggregator.processScreenUnlock(userId, time);
+		eventAggregator.processPhoneShutdown(userId, time);
 	}
 }
