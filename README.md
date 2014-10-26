@@ -45,13 +45,18 @@ It is now obsolete, and can be deleted.
 <ul>
 <li>app_install</li>
 <li>app_session</li>
+<li>call_missed</li>
+<li>call_outgoing</li>
+<li>call_received</li>
+<li>dreaming_started</li>
+<li>dreaming_stopped</li>
+<li>phone_shutdown</li>
 <li>screen_off</li>
+<li>screen_on</li>
 <li>screen_unlock</li>
 <li>sms_received</li>
 <li>sms_sent</li>
-<li>call_outgoing</li>
-<li>call_received</li>
-<li>call_missed</li>
+<li>window_state_changed</li>
 </ul>
 
 <h4>Keys in Redis</h4>
