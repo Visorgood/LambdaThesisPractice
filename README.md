@@ -17,26 +17,39 @@ List of event types being processed:
 </ul>
 
 In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys:<br />
+<ul>
+<li>app:$app_name:$user_id:sessions:* counters</li>
+<li>app:$app_name:$user_id:total_time:* durations</li>
+<li>user:$user_id:$app_name:app_usage:* counters</li>
+<li>user:allUsers:$app_name:app_usage:* counters</li>
+<li>user:$user_id:$app_name:app_starts:* durations</li>
+<li>user:allUsers:$app_name:app_starts:* durations</li>
 
-app:$app_name:$user_id:sessions:* counters
-app:$app_name:$user_id:total_time:* durations
-user:$user_id:$app_name:app_usage:* counters
-user:ALL_USERS_ID:$app_name:app_usage:* counters
-user:$user_id:$app_name:app_starts:* durations
-user:ALL_USERS_ID:$app_name:app_starts:* durations
+<li>user:$user_id:screen_lock:* counters
 
-user:$user_id:screen_lock:* counters
+<li>user:$user_id:$phone_hash:incoming_msg_count:* counters</li>
+<li>user:allUsers:$phone_hash:incoming_msg_count:* counters</li>
+<li>user:$user_id:$phone_hash:incoming_msg_length:* lengths</li>
+<li>user:allUsers:$phone_hash:incoming_msg_length:* lengths</li>
 
-user:$user_id:$phone_hash:incoming_msg_count:* counters
-user:ALL_USERS_ID:$phone_hash:incoming_msg_count:* counters
-user:$user_id:$phone_hash:incoming_msg_length:* lengths
-user:ALL_USERS_ID:$phone_hash:incoming_msg_length:* lengths
+<li>user:$user_id:$phone_hash:outgoing_msg_count:* counters</li>
+<li>user:allUsers:$phone_hash:outgoing_msg_count:* counters</li>
+<li>user:$user_id:$phone_hash:outgoing_msg_length:* lengths</li>
+<li>user:allUsers:$phone_hash:outgoing_msg_length:* lengths</li>
 
-user:$user_id:$phone_hash:outgoing_msg_count:* counters
-user:ALL_USERS_ID:$phone_hash:outgoing_msg_count:* counters
-user:$user_id:$phone_hash:outgoing_msg_length:* lengths
-user:ALL_USERS_ID:$phone_hash:outgoing_msg_length:* lengths
+<li>user:$user_id:$phone_hash:outgoing_call_count:* counters</li>
+<li>user:allUsers:$phone_hash:outgoing_call_count:* counters</li>
+<li>user:$user_id:$phone_hash:outgoing_call_duration:* durations</li>
+<li>user:allUsers:$phone_hash:outgoing_call_duration:* durations</li>
 
+<li>user:$user_id:$phone_hash:incoming_call_count:* counters</li>
+<li>user:allUsers:$phone_hash:incoming_call_count:* counters</li>
+<li>user:$user_id:$phone_hash:incoming_call_duration:* durations</li>
+<li>user:allUsers:$phone_hash:incoming_call_duration:* durations</li>
+
+<li><li>user:$user_id:$phone_hash:missed_call_count:* counters</li>
+<li>user:allUsers:$phone_hash:missed_call_count:* counters</li>
+</ul>
 
 <h3>EventGenerator</h3>
 
