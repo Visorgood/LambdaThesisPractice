@@ -13,8 +13,8 @@ public class RedisProxy
 	private static long DAY = Duration.standardDays(1).getMillis();
 	private static long WEEK = Duration.standardDays(7).getMillis();
 	
-	private final Jedis jedis;
-	private Pipeline pipeline;
+	private final Jedis jedis; // the main redis connection provider
+	private Pipeline pipeline; // class that allows to send requests to redis in batches through the network
 	
 	public RedisProxy(String host)
 	{
@@ -22,6 +22,7 @@ public class RedisProxy
 		pipeline = null;
 	}
 	
+	// increments all standard counters for all heys having a given base part
 	public void incrementCounters(String key, long time)
 	{
 		checkCountersExist(key, CounterType.Count, time);
@@ -31,6 +32,7 @@ public class RedisProxy
 		incrementCounter(DurationType.Month, CounterType.Count, key, time, 1);
 	}
 
+	// increments all length counters for all heys having a given base part
 	public void incrementLengths(String key, long time, int length)
 	{
 		checkCountersExist(key, CounterType.Length, time);
@@ -40,6 +42,7 @@ public class RedisProxy
 		incrementCounter(DurationType.Month, CounterType.Length, key, time, length);
 	}
 	
+	// increments all duration counters for all heys having a given base part
 	public void incrementDurations(String key, long time, long duration)
 	{
 		checkCountersExist(key, CounterType.Duration, time);
@@ -51,7 +54,9 @@ public class RedisProxy
 	
 	public void addUserToApp(String key, long userId)
 	{
+		pipeline = jedis.pipelined();
 		pipeline.sadd(key, Long.toString(userId));
+		pipeline.sync();
 	}
 	
 	private void checkCountersExist(String key, CounterType counterType, long time)
@@ -259,198 +264,3 @@ public class RedisProxy
 		return mdt.getMillis();
 	}
 }
-
-
-/*
-private void incrementHourlyCounter(String key, long time, long value)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingHourTime = Long.parseLong(counter.get(0));
-		long counterValue = Long.parseLong(counter.get(1));
-		long difference = time - startingHourTime;
-		if (difference >= HOUR)
-		{
-			long numberOfHours = difference / HOUR;
-			pipeline.lset(key, 0, Long.toString(startingHourTime + numberOfHours * HOUR));
-			counterValue = 0;
-		}
-		counterValue += value;
-		pipeline.lset(key, 1, Long.toString(counterValue));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementDailyCounter(String key, long time, long value)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingDayTime = Long.parseLong(counter.get(0));
-		long counterValue = Long.parseLong(counter.get(1));
-		long difference = time - startingDayTime;
-		if (difference >= DAY)
-		{
-			long numberOfDays = difference / DAY;
-			pipeline.lset(key, 0, Long.toString(startingDayTime + numberOfDays * DAY));
-			counterValue = 0;
-		}
-		counterValue += value;
-		pipeline.lset(key, 1, Long.toString(counterValue));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementWeeklyCounter(String key, long time, long value)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingWeekTime = Long.parseLong(counter.get(0));
-		long counterValue = Long.parseLong(counter.get(1));
-		long difference = time - startingWeekTime;
-		if (difference >= WEEK)
-		{
-			// !!! here must be changed so that weeks start from monday
-			long numberOfWeeks = difference / WEEK;
-			pipeline.lset(key, 0, Long.toString(startingWeekTime + numberOfWeeks * WEEK));
-			counterValue = 0;
-		}
-		counterValue += value;
-		pipeline.lset(key, 1, Long.toString(counterValue));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementMonthlyCounter(String key, long time, long value)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingMonthTime = Long.parseLong(counter.get(0));
-		long counterValue = Long.parseLong(counter.get(1));
-		if (monthDifference(time, startingMonthTime) > 0)
-		{
-			pipeline.lset(key, 0, Long.toString(dropLessThanMonth(time)));
-			counterValue = 0;
-		}
-		counterValue += value;
-		pipeline.lset(key, 1, Long.toString(counterValue));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementHourlyDuration(String key, long time, long duration)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingHourTime = Long.parseLong(counter.get(0));
-		long durationValue = Long.parseLong(counter.get(1));
-		long endTime = time + durationValue;
-		long difference = endTime - startingHourTime;
-		if (difference >= HOUR)
-		{
-			long numberOfHours = difference / HOUR;
-			startingHourTime += numberOfHours * HOUR;
-			pipeline.lset(key, 0, Long.toString(startingHourTime));
-			durationValue = 0;
-		}
-		if (time < startingHourTime)
-			duration -= startingHourTime - time;
-		pipeline.lset(key, 1, Long.toString(durationValue + duration));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementDailyDuration(String key, long time, long duration)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingDayTime = Long.parseLong(counter.get(0));
-		long durationValue = Long.parseLong(counter.get(1));
-		long endTime = time + duration;
-		long difference = endTime - startingDayTime;
-		if (difference >= DAY)
-		{
-			long numberOfDays = difference / DAY;
-			startingDayTime += numberOfDays * DAY;
-			pipeline.lset(key, 0, Long.toString(startingDayTime));
-			durationValue = 0;
-		}
-		if (time < startingDayTime)
-			duration -= startingDayTime - time;
-		pipeline.lset(key, 1, Long.toString(durationValue + duration));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementWeeklyDuration(String key, long time, long duration)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingWeekTime = Long.parseLong(counter.get(0));
-		long durationValue = Long.parseLong(counter.get(1));
-		long endTime = time + duration;
-		long difference = endTime - startingWeekTime;
-		if (difference >= WEEK)
-		{
-			long numberOfWeeks = difference / WEEK;
-			startingWeekTime += numberOfWeeks * WEEK;
-			pipeline.lset(key, 0, Long.toString(startingWeekTime));
-			durationValue = 0;
-		}
-		if (time < startingWeekTime)
-			duration -= startingWeekTime - time;
-		pipeline.lset(key, 1, Long.toString(durationValue + duration));
-		success = (pipeline.exec() != null);
-	}
-}
-
-private void incrementMonthlyDuration(String key, long time, long duration)
-{
-	Boolean success = false;
-	while (!success)
-	{
-		pipeline.watch(key);
-		List<String> counter = pipeline.lrange(key, 0, 1).get();
-		pipeline.multi();
-		long startingMonthTime = Long.parseLong(counter.get(0));
-		long durationValue = Long.parseLong(counter.get(1));
-		long endTime = time + duration;
-		if (monthDifference(endTime, startingMonthTime) > 0)
-		{
-			pipeline.lset(key, 0, Long.toString(dropLessThanMonth(endTime)));
-			durationValue = 0;
-		}
-		if (time < startingMonthTime)
-			duration -= startingMonthTime - time;
-		pipeline.lset(key, 1, Long.toString(durationValue + duration));
-		success = (pipeline.exec() != null);
-	}
-}
-*/
