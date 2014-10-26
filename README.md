@@ -98,7 +98,8 @@ In the final Redis database, that plays the role of real-time views of the speed
 
 Each time * means, that there are 4 counters with that base name and additional part, for example<br />
 <br />
-app:$app_name:$user_id:sessions:* counters - means that there are exactly the following keys
+app:$app_name:$user_id:sessions:* counters - means that there are exactly the following keys<br />
+(all of them are lists with two elements, first is date-time of the start of counting, second is the value itself)
 <ul>
 <li>app:$app_name:$user_id:sessions:count:hourly</li>
 <li>app:$app_name:$user_id:sessions:count:daily</li>
