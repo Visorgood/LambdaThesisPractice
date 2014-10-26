@@ -47,7 +47,7 @@ In the final Redis database, that plays the role of real-time views of the speed
 <li>user:$user_id:$phone_hash:incoming_call_duration:* durations</li>
 <li>user:allUsers:$phone_hash:incoming_call_duration:* durations</li>
 
-<li><li>user:$user_id:$phone_hash:missed_call_count:* counters</li>
+<li>user:$user_id:$phone_hash:missed_call_count:* counters</li>
 <li>user:allUsers:$phone_hash:missed_call_count:* counters</li>
 </ul>
 
