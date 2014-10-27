@@ -62,7 +62,7 @@ It is now obsolete, and can be deleted.
 <h4>Keys in Redis</h4>
 
 In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys.<br />
-Each keys has as its value a list with two elements. First is the date-time of the start of counting, second is the value itself.
+Each key is associated with the list, that has two elements. The first one is the date-time of the beginning of counting. The second one is the value itself.
 <ul>
 <li>app:$app_name:$user_id:sessions:* counters</li>
 <li>app:$app_name:$user_id:total_time:* durations</li>
