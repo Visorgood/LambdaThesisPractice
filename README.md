@@ -98,7 +98,6 @@ Each key is associated with the list, that has two elements. The first one is th
 </ul>
 
 Each time * means, that there are 4 counters with that base name and additional part, for example<br />
-<br />
 app:$app_name:$user_id:sessions:* counters - means that there are exactly the following keys<br />
 <ul>
 <li>app:$app_name:$user_id:sessions:count:hourly</li>
@@ -106,7 +105,6 @@ app:$app_name:$user_id:sessions:* counters - means that there are exactly the fo
 <li>app:$app_name:$user_id:sessions:count:weekly</li>
 <li>app:$app_name:$user_id:sessions:count:monthly</li>
 </ul>
-<br />
 app:$app_name:$user_id:total_time:* durations - means that there are
 <ul>
 <li>app:$app_name:$user_id:total_time:duration:hourly</li>
