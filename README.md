@@ -40,7 +40,7 @@ It is already quite obsolete, and can be easily deleted.
 Old Storm project, that is now recreated as MenthalSLStormProcessor.<br />
 It is now obsolete, and can be deleted.
 
-<h4>List of processed events</h4>
+<h4>List of events that we process for this moment</h4>
 
 <ul>
 <li>app_install</li>
@@ -61,7 +61,8 @@ It is now obsolete, and can be deleted.
 
 <h4>Keys in Redis</h4>
 
-In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys:<br />
+In the final Redis database, that plays the role of real-time views of the speed layer, we have following keys.<br />
+Each keys has as its value a list with two elements. First is the date-time of the start of counting, second is the value itself.
 <ul>
 <li>app:$app_name:$user_id:sessions:* counters</li>
 <li>app:$app_name:$user_id:total_time:* durations</li>
@@ -99,7 +100,6 @@ In the final Redis database, that plays the role of real-time views of the speed
 Each time * means, that there are 4 counters with that base name and additional part, for example<br />
 <br />
 app:$app_name:$user_id:sessions:* counters - means that there are exactly the following keys<br />
-(all of them are lists with two elements, first is date-time of the start of counting, second is the value itself)
 <ul>
 <li>app:$app_name:$user_id:sessions:count:hourly</li>
 <li>app:$app_name:$user_id:sessions:count:daily</li>
