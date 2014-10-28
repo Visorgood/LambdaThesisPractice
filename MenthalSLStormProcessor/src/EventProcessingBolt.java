@@ -64,7 +64,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 
 	@Override
 	public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
-		eventAggregator = new EventAggregator("localhost");
+		eventAggregator = new RedisEventAggregator("localhost");
 	}
 
 	@Override
