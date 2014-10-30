@@ -13,7 +13,9 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 
 // base class for all bolts, that process events of different types
 // has a field schemaName, that must be initialized in the constructor of a specific bolt
@@ -25,6 +27,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 	
 	protected String schemaName;
 	protected EventAggregator eventAggregator;
+	OutputCollector _collector;
 	
 	public static EventProcessingBolt getEventProcessingBoltByEventName(String eventName) {
 		switch (eventName) {
@@ -56,6 +59,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 			InputStream in = new ByteArrayInputStream((byte[])tuple.getValue(0));
 			GenericRecord record = datumReader.read(null, DecoderFactory.get().jsonDecoder(schema, in));
 			processEvent(record);
+			_collector.emit(new Values(record));
 		} catch (Exception e) {
 			System.out.println("Exception raised!");
 			System.out.println(e.getMessage());
@@ -64,11 +68,12 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 
 	@Override
 	public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
+		_collector = collector;
 		eventAggregator = new RedisEventAggregator("localhost");
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		
+		declarer.declare(new Fields("record"));
 	}
 }

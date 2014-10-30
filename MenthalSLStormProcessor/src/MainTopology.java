@@ -8,6 +8,7 @@ import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.tuple.Fields;
 import backtype.storm.utils.Utils;
 
 public class MainTopology {	
@@ -37,6 +38,13 @@ public class MainTopology {
 			topologyBuilder.setSpout(eventName + "-KafkaSpout", new KafkaSpout(spoutConfig), 1);
 			topologyBuilder.setBolt(eventName + "-Bolt", EventProcessingBolt.getEventProcessingBoltByEventName(eventName), 1).shuffleGrouping(eventName + "-KafkaSpout");
 		}
+		
+		// for anomaly detection
+		AnomalyDetectionBolt anomalyDetectionBolt = new AnomalyDetectionBolt();
+		topologyBuilder.setBolt("AnomalyDetectionBolt", anomalyDetectionBolt, 1).shuffleGrouping("sms_sent-Bolt");
+		topologyBuilder.setBolt("AnomalyDetectionBolt1", anomalyDetectionBolt, 1).shuffleGrouping("call_outgoing-Bolt");
+		topologyBuilder.setBolt("AnomalyDetectionBolt2", anomalyDetectionBolt, 1).shuffleGrouping("app_install-Bolt");
+		topologyBuilder.setBolt("AnomalyDetectionBolt3", anomalyDetectionBolt, 1).shuffleGrouping("phone_shutdown-Bolt");
 		
 		Config conf = new Config();
 		conf.setDebug(true);
