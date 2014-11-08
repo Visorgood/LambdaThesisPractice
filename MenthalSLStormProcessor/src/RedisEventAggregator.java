@@ -13,27 +13,27 @@ public class RedisEventAggregator implements EventAggregator {
 
   public void processAppSession(long userId, long time, long duration, String appName) {
     // app:$app_name:$user_id:sessions:* counters
-    String key = String.format("app:%s:user%d:%s", appName, userId, "sessions");
+    String key = String.format("app:%s:%s", appName, "sessions");
     redisProxy.incrementCounters(key, time);
 
     // app:$app_name:$user_id:total_time:* durations
-    key = String.format("app:%s:user%d:%s", appName, userId, "total_time");
+    key = String.format("app:%s:%s", appName, "total_time");
     redisProxy.incrementDurations(key, time, duration);
 
     // user:$user_id:$app_name:app_usage:* counters
-    key = String.format("user:user%d:%s:%s", userId, appName, "app_usage");
+    key = String.format("user:user%d:%s:%s", userId, appName, "app_starts");
     redisProxy.incrementCounters(key, time);
 
     // user:ALL_USERS_ID:$app_name:app_usage:* counters
-    key = String.format("user:%s:%s:%s", ALL_USERS_ID, appName, "app_usage");
+    key = String.format("user:%s:%s:%s", ALL_USERS_ID, appName, "app_starts");
     redisProxy.incrementCounters(key, time);
 
     // user:$user_id:$app_name:app_starts:* durations
-    key = String.format("user:user%d:%s:%s", userId, appName, "app_starts");
+    key = String.format("user:user%d:%s:%s", userId, appName, "app_usage");
     redisProxy.incrementDurations(key, time, duration);
 
     // user:ALL_USERS_ID:$app_name:app_starts:* durations
-    key = String.format("user:%s:%s:%s", ALL_USERS_ID, appName, "app_starts");
+    key = String.format("user:%s:%s:%s", ALL_USERS_ID, appName, "app_usage");
     redisProxy.incrementDurations(key, time, duration);
   }
 

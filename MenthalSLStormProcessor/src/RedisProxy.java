@@ -32,7 +32,7 @@ public class RedisProxy
 		pipeline = null;
 	}
 	
-	// increments all standard counters for all heys having a given base part
+	// increments all standard counters for all keys having a given base part
 	public void incrementCounters(String key, long time)
 	{
 		checkCountersExist(key, CounterType.Count, time);
@@ -42,7 +42,7 @@ public class RedisProxy
 		incrementCounter(DurationType.Month, CounterType.Count, key, time, 1);
 	}
 
-	// increments all length counters for all heys having a given base part
+	// increments all length counters for all keys having a given base part
 	public void incrementLengths(String key, long time, int length)
 	{
 		checkCountersExist(key, CounterType.Length, time);
@@ -52,7 +52,7 @@ public class RedisProxy
 		incrementCounter(DurationType.Month, CounterType.Length, key, time, length);
 	}
 	
-	// increments all duration counters for all heys having a given base part
+	// increments all duration counters for all keys having a given base part
 	public void incrementDurations(String key, long time, long duration)
 	{
 		checkCountersExist(key, CounterType.Duration, time);
