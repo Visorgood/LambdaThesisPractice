@@ -1,3 +1,4 @@
+package menthal;
 
 import java.io.File;
 import java.util.Iterator;
@@ -32,13 +33,18 @@ public abstract class EventProcessingStream implements java.io.Serializable
 		{
 			case "app_install": return new AppInstallStream();
 			case "app_session": return new AppSessionStream();
+			case "call_missed": return new CallMissedStream();
+			case "call_outgoing": return new CallOutgoingStream();
+			case "call_received": return new CallReceivedStream();
+			case "dreaming_started": return new DreamingStartedStream();
+			case "dreaming_stopped": return new DreamingStoppedStream();
+			case "phone_shutdown": return new PhoneShutdownStream();
 			case "screen_off": return new ScreenOffStream();
+			case "screen_on": return new ScreenOnStream();
 			case "screen_unlock": return new ScreenUnlockStream();
 			case "sms_received": return new SmsReceivedStream();
 			case "sms_sent": return new SmsSentStream();
-			case "call_outgoing": return new CallOutgoingStream();
-			case "call_received": return new CallReceivedStream();
-			case "call_missed": return new CallMissedStream();
+			case "window_state_changed": return new WindowStateChangedStream();
 		}
 		return null;
 	}
@@ -60,10 +66,8 @@ public abstract class EventProcessingStream implements java.io.Serializable
 	        		@Override
 	        		public void call(Iterator<Tuple2<String, String>> partitionOfRecords)
 	        		{
-	        			System.out.println("new partition:");
-	        			
 	        			// Why eventAggregator is here: http://blog.csdn.net/luyee2010/article/details/39291163
-	        			EventAggregator eventAggregator = new EventAggregator("localhost");
+	        			EventAggregator eventAggregator = new RedisEventAggregator("localhost");
 	        			
 	        			while(partitionOfRecords.hasNext())
 	        			{
@@ -71,7 +75,7 @@ public abstract class EventProcessingStream implements java.io.Serializable
 	        		        System.out.print(element + " ");
 	        		        try
 	        		        {
-		        		         Schema schema = new Schema.Parser().parse(new File(schemaName + ".avsc"));
+	        		        	 Schema schema = new Schema.Parser().parse(new File(/*"/home/hduser/lana/" +*/ schemaName + ".avsc"));
 		        		         DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
 	        					 GenericRecord record = datumReader.read(null, DecoderFactory.get().jsonDecoder(schema, element._2()));
 	        					 processEvent(record, eventAggregator);

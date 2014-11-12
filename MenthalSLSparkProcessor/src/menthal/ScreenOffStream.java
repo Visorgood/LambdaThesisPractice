@@ -1,3 +1,4 @@
+package menthal;
 import org.apache.avro.generic.GenericRecord;
 
 
@@ -14,5 +15,8 @@ public class ScreenOffStream extends EventProcessingStream implements java.io.Se
 	protected void processEvent(GenericRecord record, EventAggregator eventAggregator)
 	{
 		System.out.println(schemaName + "-Stream: " + record.toString());
+		long userId = (long)record.get("userId");
+		long time = (long)record.get("time");
+		eventAggregator.processScreenOff(userId, time);
 	}
 }

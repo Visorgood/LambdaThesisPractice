@@ -1,3 +1,4 @@
+package menthal;
 import org.apache.avro.generic.GenericRecord;
 
 public class AppInstallStream extends EventProcessingStream implements java.io.Serializable
@@ -16,6 +17,6 @@ public class AppInstallStream extends EventProcessingStream implements java.io.S
 		long userId = (long)record.get("userId");
 		String appName = record.get("appName").toString();
 		long time = (long)record.get("time");
-		eventAggregator.processAppInstall(userId, appName, time);
+		eventAggregator.processAppInstall(userId, time, appName);
 	}
 }

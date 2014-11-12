@@ -1,13 +1,13 @@
+package menthal;
 import org.apache.avro.generic.GenericRecord;
 
-
-public class CallOutgoingStream extends EventProcessingStream implements java.io.Serializable
+public class SmsSentStream extends EventProcessingStream implements java.io.Serializable
 {
-	private static final long serialVersionUID = -2503861431773136207L;
+	private static final long serialVersionUID = 2265474416158752690L;
 
-	public CallOutgoingStream()
+	public SmsSentStream()
 	{
-		schemaName = "call_outgoing";
+		schemaName = "sms_sent";
 	}
 
 	@Override
@@ -17,7 +17,7 @@ public class CallOutgoingStream extends EventProcessingStream implements java.io
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
 		String contactHash = record.get("contactHash").toString();
-		long duration = (long)record.get("duration");
-		eventAggregator.processCallOutgoing(userId, time, contactHash, time, duration);
+		int msgLength = (int)record.get("msgLength");
+		eventAggregator.processSmsSent(userId, time, contactHash, msgLength);
 	}
 }

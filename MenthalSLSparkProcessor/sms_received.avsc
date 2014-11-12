@@ -1,4 +1,4 @@
-{
+ {
     "name":"SmsReceived",
     "type":"record",
   "namespace":"org.menthal.model.events",
