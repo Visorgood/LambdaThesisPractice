@@ -66,5 +66,6 @@
 	<classpathentry kind="lib" path="/home/user/storm/apache-storm-0.9.2-incubating/lib/tools.logging-0.2.3.jar"/>
 	<classpathentry kind="lib" path="/home/user/storm/apache-storm-0.9.2-incubating/lib/tools.macro-0.1.0.jar"/>
 	<classpathentry kind="lib" path="/home/user/storm/apache-storm-0.9.2-incubating/lib/zookeeper-3.4.5.jar"/>
+	<classpathentry kind="lib" path="/home/user/libsvm-3.19/java/libsvm.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
