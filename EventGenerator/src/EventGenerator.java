@@ -14,12 +14,12 @@ import kafka.producer.ProducerConfig;
 
 public class EventGenerator {
   private static int NUMBER_OF_EVENTS = 10; // the number of events to generate
-  private static int MIN_INTERVAL = 100; // minimal interval in milliseconds between generation of
-                                         // events
-  private static int MAX_ADDITIONAL_INTERVAL = 200; // additional interval in milliseconds
-                                                    // total interval between generation of events
-                                                    // is in the range [MIN_INTERVAL; MIN_INTERVAL +
-                                                    // MAX_ADDITIONAL_INTERVAL)
+  private static int MIN_INTERVAL = 0; // minimal interval in milliseconds between generation of
+                                       // events
+  private static int MAX_ADDITIONAL_INTERVAL = 1; // additional interval in milliseconds
+                                                  // total interval between generation of events
+                                                  // is in the range [MIN_INTERVAL; MIN_INTERVAL +
+                                                  // MAX_ADDITIONAL_INTERVAL)
 
   private static long NUMBER_OF_USERS = 100; // the number of possible users (user ids)
   private static int NUMBER_OF_APPS = 100; // the number of possible apps (app names)
@@ -36,8 +36,14 @@ public class EventGenerator {
 
   public static void main(String[] args) throws IOException, InterruptedException {
     // parse arguments to use the specified number of events to generate
-    if (args != null && args.length > 0) {
-      NUMBER_OF_EVENTS = Integer.parseInt(args[0]);
+    if (args != null) {
+      if (args.length > 0) {
+        NUMBER_OF_EVENTS = Integer.parseInt(args[0]);
+      }
+      if (args.length > 1) {
+        MIN_INTERVAL = Integer.parseInt(args[1]);
+        MAX_ADDITIONAL_INTERVAL = 200;
+      }
     }
 
     // initialize kafka producer
