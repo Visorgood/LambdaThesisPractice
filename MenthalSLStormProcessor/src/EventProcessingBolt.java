@@ -8,6 +8,7 @@ import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DecoderFactory;
+import org.joda.time.DateTime;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -58,8 +59,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 			DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
 			InputStream in = new ByteArrayInputStream((byte[])tuple.getValue(0));
 			GenericRecord record = datumReader.read(null, DecoderFactory.get().jsonDecoder(schema, in));
-			System.out.println("Bolt is processing the record: " + record.toString());
-			System.out.println(this.getClass().toString());
+			System.out.printf("%s:%s:%s%n", DateTime.now().toString(), this.getClass().toString(), record.toString());
 			processEvent(record);
 			_collector.emit(new Values(record));
 		} catch (Exception e) {
