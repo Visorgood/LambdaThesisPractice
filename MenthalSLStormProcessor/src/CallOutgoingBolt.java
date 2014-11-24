@@ -9,7 +9,6 @@ public class CallOutgoingBolt extends EventProcessingBolt {
 
 	@Override
 	protected void processEvent(GenericRecord record) {
-		System.out.println(schemaName + "-Bolt: " + record.toString());
 		long userId = (long)record.get("userId");
 		long time = (long)record.get("time");
 		String contactHash = record.get("contactHash").toString();
