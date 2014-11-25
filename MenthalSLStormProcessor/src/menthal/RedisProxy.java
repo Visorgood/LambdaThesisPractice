@@ -74,12 +74,12 @@ public class RedisProxy {
   }
 
   public void countEvent() {
-    if (!jedis.exists(eventCounterKey)) {
-      jedis.rpush(eventCounterKey, Long.toString(new DateTime().now().getMillis()), "0");
-    }
     Boolean success = false;
     while (!success) {
       jedis.watch(eventCounterKey);
+      //if (!jedis.exists(eventCounterKey)) {
+        //jedis.rpush(eventCounterKey, Long.toString(new DateTime().now().getMillis()), "0");
+      //}
       List<String> value = jedis.lrange(eventCounterKey, 0, 1);
       pipeline = jedis.pipelined();
       pipeline.multi();
@@ -88,9 +88,11 @@ public class RedisProxy {
       ++count;
       if (count < eventCountLimit) {
         pipeline.lset(eventCounterKey, 1, Long.toString(count));
+        if (count == 1) {
+          pipeline.lset(eventCounterKey, 0, Long.toString(new DateTime().now().getMillis()));
+        }
       } else {
         pipeline.rpush("eventCounterList", Long.toString(new DateTime().now().getMillis() - timestamp));
-        pipeline.lset(eventCounterKey, 0, Long.toString(new DateTime().now().getMillis()));
         pipeline.lset(eventCounterKey, 1, Long.toString(0));
       }
       success = (pipeline.exec() != null);
