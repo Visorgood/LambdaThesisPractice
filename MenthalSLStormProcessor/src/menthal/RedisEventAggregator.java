@@ -3,8 +3,8 @@ public class RedisEventAggregator implements EventAggregator {
   private final RedisProxy redisProxy;
   private static String ALL_USERS_ID = "allUsers";
 
-  public RedisEventAggregator(String host) {
-    redisProxy = new RedisProxy(host);
+  public RedisEventAggregator(String host, int eventCountLimit) {
+    redisProxy = new RedisProxy(host, eventCountLimit);
   }
 
   public void processAppInstall(long userId, long time, String appName) {
