@@ -153,6 +153,6 @@ public class RedisEventAggregator implements EventAggregator {
   }
   
   public void countEvent() {
-    
+    redisProxy.countEvent();
   }
 }
