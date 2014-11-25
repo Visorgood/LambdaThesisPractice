@@ -1,3 +1,4 @@
+package menthal;
 import org.apache.avro.generic.GenericRecord;
 
 public class ScreenOffBolt extends EventProcessingBolt {

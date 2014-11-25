@@ -1,3 +1,4 @@
+package menthal;
 import java.io.IOException;
 
 import libsvm.svm;

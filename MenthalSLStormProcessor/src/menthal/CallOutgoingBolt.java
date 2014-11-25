@@ -1,10 +1,11 @@
+package menthal;
 import org.apache.avro.generic.GenericRecord;
 
-public class CallReceivedBolt extends EventProcessingBolt {
-	private static final long serialVersionUID = -7580395188906387752L;
+public class CallOutgoingBolt extends EventProcessingBolt {
+	private static final long serialVersionUID = -8806319709455443417L;
 
-	public CallReceivedBolt() {
-		schemaName = "call_received";
+	public CallOutgoingBolt() {
+		schemaName = "call_outgoing";
 	}
 
 	@Override
@@ -13,6 +14,6 @@ public class CallReceivedBolt extends EventProcessingBolt {
 		long time = (long)record.get("time");
 		String contactHash = record.get("contactHash").toString();
 		long duration = (long)record.get("durationInMillis");
-		eventAggregator.processCallReceived(userId, time, contactHash, time, duration);
+		eventAggregator.processCallOutgoing(userId, time, contactHash, time, duration);
 	}
 }

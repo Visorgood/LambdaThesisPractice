@@ -1,3 +1,4 @@
+package menthal;
 import java.util.Map;
 
 import org.apache.avro.generic.GenericRecord;

@@ -1,3 +1,4 @@
+package menthal;
 public class RedisEventAggregator implements EventAggregator {
   private final RedisProxy redisProxy;
   private static String ALL_USERS_ID = "allUsers";

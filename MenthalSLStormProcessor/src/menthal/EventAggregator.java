@@ -1,3 +1,4 @@
+package menthal;
 public interface EventAggregator {
   void processAppInstall(long userId, long time, String appName);
 
