@@ -30,6 +30,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 	protected String schemaName;
 	protected EventAggregator eventAggregator;
 	OutputCollector _collector;
+	protected boolean debug = true;
 	
 	public static EventProcessingBolt getEventProcessingBoltByEventName(String eventName) {
 		switch (eventName) {
@@ -73,6 +74,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 	public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
 		_collector = collector;
 		eventAggregator = new RedisEventAggregator("localhost");
+		debug = (boolean)conf.get("debug");
 	}
 
 	@Override

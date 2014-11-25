@@ -62,6 +62,8 @@ public class MainTopology {
     }
     
     Config conf = new Config();
+    conf.put("debug", localMode);
+    
     if (localMode) {
       System.out.println("Topology will be submitted in the local mode.");
       int localModeTime = 20000;
