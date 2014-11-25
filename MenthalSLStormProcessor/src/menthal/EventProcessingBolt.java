@@ -29,7 +29,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 	
 	protected String schemaName;
 	protected EventAggregator eventAggregator;
-	OutputCollector _collector;
+	protected OutputCollector _collector;
 	protected boolean debug = true;
 	
 	public static EventProcessingBolt getEventProcessingBoltByEventName(String eventName) {
@@ -63,7 +63,9 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 			GenericRecord record = datumReader.read(null, DecoderFactory.get().jsonDecoder(schema, in));
 			processEvent(record);
 			_collector.emit(new Values(record));
-            System.out.printf("%s:%s%n", DateTime.now().getMillis(), this.getClass().toString());
+			if (debug) {
+              System.out.printf("%s:%s%n", DateTime.now().getMillis(), this.getClass().toString());
+			}
 		} catch (Exception e) {
 			System.out.println("Exception raised!");
 			System.out.println(e.getMessage());
