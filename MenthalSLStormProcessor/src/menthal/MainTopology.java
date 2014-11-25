@@ -17,6 +17,9 @@ public class MainTopology {
       "screen_off", "screen_on", "screen_unlock", "sms_received", "sms_sent",
       "window_state_changed"};
 
+  // args[0] : int - 0 is local mode, 1 is cluster mode
+  // args[1] : int - the time of topology life in the local mode, or the number of workers in the cluster mode
+  
   public static void main(String[] args) throws AlreadyAliveException, InvalidTopologyException {
     TopologyBuilder topologyBuilder = new TopologyBuilder();
 
@@ -47,30 +50,39 @@ public class MainTopology {
 
     // for anomaly detection
     // AnomalyDetectionBolt anomalyDetectionBolt = new AnomalyDetectionBolt();
-    // topologyBuilder.setBolt("AnomalyDetectionBolt", anomalyDetectionBolt,
-    // 1).shuffleGrouping("sms_sent-Bolt");
-    // topologyBuilder.setBolt("AnomalyDetectionBolt1", anomalyDetectionBolt,
-    // 1).shuffleGrouping("call_outgoing-Bolt");
-    // topologyBuilder.setBolt("AnomalyDetectionBolt2", anomalyDetectionBolt,
-    // 1).shuffleGrouping("app_install-Bolt");
-    // topologyBuilder.setBolt("AnomalyDetectionBolt3", anomalyDetectionBolt,
-    // 1).shuffleGrouping("phone_shutdown-Bolt");
+    // topologyBuilder.setBolt("AnomalyDetectionBolt", anomalyDetectionBolt, 1).shuffleGrouping("sms_sent-Bolt");
+    // topologyBuilder.setBolt("AnomalyDetectionBolt1", anomalyDetectionBolt, 1).shuffleGrouping("call_outgoing-Bolt");
+    // topologyBuilder.setBolt("AnomalyDetectionBolt2", anomalyDetectionBolt, 1).shuffleGrouping("app_install-Bolt");
+    // topologyBuilder.setBolt("AnomalyDetectionBolt3", anomalyDetectionBolt, 1).shuffleGrouping("phone_shutdown-Bolt");
 
-    Config conf = new Config();
+    boolean localMode = (args == null || args.length == 0);
+    if (!localMode) {
+      int arg0 = Integer.parseInt(args[0]);
+      localMode = (arg0 == 0);
+    }
     
-    if (args != null && args.length > 0) {
-      System.out.println("Topology will be submitted in the cluster mode.");
-      conf.setNumWorkers(Integer.parseInt(args[0]));
-      StormTopology topology = topologyBuilder.createTopology();
-      StormSubmitter.submitTopology("real-topology", conf, topology);
-    } else {
+    Config conf = new Config();
+    if (localMode) {
       System.out.println("Topology will be submitted in the local mode.");
+      int localModeTime = 20000;
+      if (args.length > 1) {
+        localModeTime = Math.max(Integer.parseInt(args[1]), 1000);
+      }
       conf.setDebug(true);
       LocalCluster cluster = new LocalCluster();
       cluster.submitTopology("test-topology", conf, topologyBuilder.createTopology());
-      Utils.sleep(20000);
+      Utils.sleep(localModeTime);
       cluster.killTopology("test-topology");
       cluster.shutdown();
+    } else {
+      System.out.println("Topology will be submitted in the cluster mode.");
+      int numWorkers = 1;
+      if (args.length > 1) {
+        numWorkers = Math.max(Integer.parseInt(args[1]), 1);
+      }
+      conf.setNumWorkers(numWorkers);
+      StormTopology topology = topologyBuilder.createTopology();
+      StormSubmitter.submitTopology("real-topology", conf, topology);
     }
   }
 }

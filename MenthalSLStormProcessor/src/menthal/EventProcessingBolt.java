@@ -60,9 +60,9 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
 			DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
 			InputStream in = new ByteArrayInputStream((byte[])tuple.getValue(0));
 			GenericRecord record = datumReader.read(null, DecoderFactory.get().jsonDecoder(schema, in));
-			System.out.printf("%s:%s:%s%n", DateTime.now().toString(), this.getClass().toString(), record.toString());
 			processEvent(record);
 			_collector.emit(new Values(record));
+            System.out.printf("%s:%s%n", DateTime.now().getMillis(), this.getClass().toString());
 		} catch (Exception e) {
 			System.out.println("Exception raised!");
 			System.out.println(e.getMessage());
