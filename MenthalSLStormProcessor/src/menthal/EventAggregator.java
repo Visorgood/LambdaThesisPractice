@@ -29,4 +29,6 @@ public interface EventAggregator {
   void processSmsSent(long userId, long time, String contactHash, int msgLength);
 
   void processWindowStateChanged(long userId, long time, String appName, String windowTitle);
+  
+  void countEvent();
 }

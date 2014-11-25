@@ -151,4 +151,8 @@ public class RedisEventAggregator implements EventAggregator {
   public void processWindowStateChanged(long userId, long time, String appName, String windowTitle) {
 
   }
+  
+  public void countEvent() {
+    
+  }
 }
