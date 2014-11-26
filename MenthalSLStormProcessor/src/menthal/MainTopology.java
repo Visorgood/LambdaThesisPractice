@@ -63,7 +63,7 @@ public class MainTopology {
     
     Config conf = new Config();
     conf.put("debug", localMode);
-    conf.put("eventCountLimit", (args.length > 2 ? Integer.parseInt(args[2]) : 1000));
+    conf.put("countInterval", (args.length > 2 ? Integer.parseInt(args[2]) : 10000));
     
     if (localMode) {
       System.out.println("Topology will be submitted in the local mode.");

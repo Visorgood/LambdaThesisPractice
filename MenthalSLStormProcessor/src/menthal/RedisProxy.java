@@ -35,9 +35,10 @@ public class RedisProxy {
   // the point to use transaction within pipeline is to be sure, that all commands will be executed
   // as one atomic command
 
-  public RedisProxy(String host, int eventCountLimit) {
+  public RedisProxy(String host, int countInterval) {
     jedis = new Jedis(host);
     pipeline = null;
+    this.countInterval = (countInterval > 0 ? countInterval : this.countInterval);
   }
 
   // increments all standard counters for all keys having a given base part

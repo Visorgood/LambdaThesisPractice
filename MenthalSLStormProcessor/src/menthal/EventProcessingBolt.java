@@ -93,8 +93,8 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
   @Override
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     _collector = collector;
-    int eventCountLimit = ((Long)conf.get("eventCountLimit")).intValue();
-    eventAggregator = new RedisEventAggregator("localhost", eventCountLimit);
+    int countInterval = ((Long)conf.get("countInterval")).intValue();
+    eventAggregator = new RedisEventAggregator("localhost", countInterval);
     debug = (boolean) conf.get("debug");
   }
 
