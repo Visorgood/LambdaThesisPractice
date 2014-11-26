@@ -73,7 +73,6 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
   @Override
   public void execute(Tuple tuple) {
     try {
-      eventAggregator.countEvent();
       Schema schema = new Schema.Parser().parse(new File(schemaName + ".avsc"));
       DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
       InputStream in = new ByteArrayInputStream((byte[]) tuple.getValue(0));
@@ -81,6 +80,7 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
       processEvent(record);
       _collector.emit(new Values(record));
       if (debug) {
+        eventAggregator.countEvent();
         System.out.printf("%s:%s%n", DateTime.now().getMillis(), this.getClass().toString());
       }
     } catch (Exception e) {
@@ -93,9 +93,9 @@ public abstract class EventProcessingBolt extends BaseRichBolt {
   @Override
   public void prepare(Map conf, TopologyContext context, OutputCollector collector) {
     _collector = collector;
+    debug = (boolean) conf.get("debug");
     int countInterval = ((Long)conf.get("countInterval")).intValue();
     eventAggregator = new RedisEventAggregator("localhost", countInterval);
-    debug = (boolean) conf.get("debug");
   }
 
   @Override
