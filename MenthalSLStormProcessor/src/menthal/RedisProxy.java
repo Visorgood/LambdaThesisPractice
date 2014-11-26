@@ -12,8 +12,9 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
 public class RedisProxy {
-  private int eventCountLimit = 1000;
-  private String eventCounterKey = "eventCounter";
+  private int countInterval = 10000;
+  private String EVENT_COUNTER_KEY = "eventCounter";
+  private String EVENT_COUNTER_LIST_KEY = "eventCounterList";
 
   private static long HOUR = Duration.standardHours(1).getMillis();
   private static long DAY = Duration.standardDays(1).getMillis();
@@ -37,7 +38,6 @@ public class RedisProxy {
   public RedisProxy(String host, int eventCountLimit) {
     jedis = new Jedis(host);
     pipeline = null;
-    jedis.del(eventCounterKey);
   }
 
   // increments all standard counters for all keys having a given base part
@@ -76,25 +76,25 @@ public class RedisProxy {
   public void countEvent() {
     Boolean success = false;
     while (!success) {
-      jedis.watch(eventCounterKey);
-      //if (!jedis.exists(eventCounterKey)) {
-        //jedis.rpush(eventCounterKey, Long.toString(new DateTime().now().getMillis()), "0");
-      //}
-      List<String> value = jedis.lrange(eventCounterKey, 0, 1);
+      jedis.watch(EVENT_COUNTER_KEY);
+      List<String> value = jedis.lrange(EVENT_COUNTER_KEY, 0, 1);
       pipeline = jedis.pipelined();
       pipeline.multi();
       long timestamp = Long.parseLong(value.get(0));
       long count = Long.parseLong(value.get(1));
-      ++count;
-      if (count < eventCountLimit) {
-        pipeline.lset(eventCounterKey, 1, Long.toString(count));
-        if (count == 1) {
-          pipeline.lset(eventCounterKey, 0, Long.toString(new DateTime().now().getMillis()));
-        }
+      long now = new DateTime().now().getMillis();
+      if (timestamp == 0) {
+        timestamp = now;
+        count = 1;
       } else {
-        pipeline.rpush("eventCounterList", Long.toString(new DateTime().now().getMillis() - timestamp));
-        pipeline.lset(eventCounterKey, 1, Long.toString(0));
+        ++count;
+        if (now - timestamp >= countInterval) {
+          pipeline.zadd(EVENT_COUNTER_LIST_KEY, now, Long.toString(count));
+          timestamp = now;
+        }
       }
+      pipeline.lset(EVENT_COUNTER_KEY, 0, Long.toString(timestamp));
+      pipeline.lset(EVENT_COUNTER_KEY, 1, Long.toString(count));
       success = (pipeline.exec() != null);
     }
     pipeline.sync();
